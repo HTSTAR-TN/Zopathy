@@ -6,6 +6,7 @@ function authConfigured(){const c=window.ZOPATHY_CONFIG||{};return /^https:\/\/[
 function authTransportSecure(){return location.protocol==='https:'||['localhost','127.0.0.1'].includes(location.hostname)}
 function accountSidebar(){
  const container=$('#account-controls');if(!container)return;
+ if(!authReady&&authConfigured()&&authTransportSecure()){container.innerHTML=`<div class="account-restoring" role="status">${authNotice?'Your account could not reconnect. <button class="secondary-btn" data-auth-action="retry">Try again</button>':'Restoring your account…'}</div>`;return}
  container.innerHTML=authUser?`<button class="account-user" data-page="profile">${profileAvatar(profile)}<span><strong style="color:${profileNameColor(profile)}">${esc(profile.name)}</strong><small>@${esc(accountHandle())}</small></span></button><button class="account-signout" data-auth-action="signout">Sign out</button>`:`<div class="guest-account"><button class="primary" data-auth-mode="signup">Create account</button><button class="secondary-btn" data-auth-mode="signin">Sign in</button></div>`;
 }
 function renderAccount(){
@@ -17,7 +18,7 @@ function renderAccount(){
  return header('Account')+`<div class="page-content"><section class="account-card"><div class="account-brand">${icon('user')}</div><h2>${title}</h2><p class="account-description">${recover?'Enter your email and we’ll send a password-reset link.':update?'Use a password of at least 12 characters.':signup?'Save your profile and make Zopathy yours.':'Welcome back.'}</p><div id="auth-message" class="auth-message ${unavailable?'auth-warning':''}" role="status" aria-live="polite">${esc(unavailable||authNotice)}</div><form id="auth-form" data-mode="${authMode}">${signup?'<label class="field"><span>Display name</span><input name="displayName" autocomplete="nickname" required maxlength="32" placeholder="Your name"></label>':''}${!update?'<label class="field"><span>Email</span><input name="email" type="email" autocomplete="email" required maxlength="254" placeholder="you@example.com"></label>':''}${!recover?`<label class="field"><span>${update?'New password':'Password'}</span><input name="password" type="password" autocomplete="${signup||update?'new-password':'current-password'}" required ${signup||update?'minlength="12"':''} maxlength="72" placeholder="${signup||update?'At least 12 characters':'Your password'}"></label>`:''}${signup||update?'<label class="field"><span>Confirm password</span><input name="confirmPassword" type="password" autocomplete="new-password" required minlength="12" maxlength="72" placeholder="Repeat your password"></label>':''}<button class="primary auth-submit" type="submit" ${!usable||authBusy?'disabled':''}>${authBusy?'Please wait…':signup?'Create account':recover?'Send reset link':update?'Save new password':'Sign in'} ${icon('arrow')}</button></form><div class="auth-links">${recover?'<button data-auth-mode="signin">Back to sign in</button>':update?'':signup?'Already have an account? <button data-auth-mode="signin">Sign in</button>':'<button data-auth-mode="recover">Forgot password?</button><span>New to Zopathy? <button data-auth-mode="signup">Create account</button></span>'}</div><p class="account-privacy">Your email is private. Your Zopathy profile is public.</p></section></div>`;
 }
 function openAccount(mode='signin',message=''){authMode=mode;authNotice=message;state.page='account';closeDialog();render();window.scrollTo(0,0)}
-function requireAccount(){if(authUser)return true;openAccount('signin','Sign in or create an account to continue.');return false}
+function requireAccount(){if(authUser)return true;if(!authReady&&authConfigured()&&authTransportSecure()){toast('Your account is reconnecting. Please wait or try again.');return false}openAccount('signin','Sign in or create an account to continue.');return false}
 function setAuthMessage(message,error=false){authNotice=message;const el=$('#auth-message');if(el){el.textContent=message;el.classList.toggle('auth-warning',error)}}
 async function applyAccountUser(user){
  const previousId=authUser?.id;const generation=++authGeneration;authUser=user||null;accountUsername=authUser?'z_'+authUser.id.replaceAll('-','').slice(0,20):'you';
@@ -78,6 +79,7 @@ async function submitAuthForm(form){
  finally{authBusy=false;for(const input of form.querySelectorAll('input[type="password"]'))input.value='';if(button.isConnected){button.disabled=false;button.textContent=mode==='signup'?'Create account':mode==='recover'?'Send reset link':mode==='update-password'?'Save new password':'Sign in'}}
 }
 async function handleAuthAction(action){
+ if(action==='retry'){await restoreAccountSession();return}
  if(action==='signout'){
   if(!authClient)return;const {error}=await authClient.auth.signOut();if(error){toast('Sign out failed. Please try again.');return}
   await applyAccountUser(null);state.page='home';draft={title:'',text:'',blocks:[]};render();toast('Signed out.');
@@ -91,7 +93,12 @@ async function initializeAccounts(){
   if(event==='INITIAL_SESSION')return;
   setTimeout(async()=>{try{if(event==='PASSWORD_RECOVERY'){authReady=true;await applyAccountUser(session?.user||null);openAccount('update-password');return}if(event==='SIGNED_OUT')await applyAccountUser(null);else if(event==='SIGNED_IN'&&session?.user?.id!==authUser?.id)await applyAccountUser(session.user)}catch{toast('Account connection failed. Please try again.')}},0);
  });
- try{const {data}=await authClient.auth.getUser();authReady=true;await applyAccountUser(data.user||null)}catch{authReady=true;await applyAccountUser(null)}
+ await restoreAccountSession();
+}
+async function restoreAccountSession(){
+ if(!authClient)return;authNotice='';
+ try{const {data,error}=await authClient.auth.getSession();if(error)throw error;authReady=true;await applyAccountUser(data.session?.user||null)}
+ catch{authNotice='Your account could not reconnect. Please try again.';social.ready=true;social.error=authNotice;render()}
 }
 document.addEventListener('submit',e=>{if(e.target.id==='auth-form'){e.preventDefault();submitAuthForm(e.target)}});
 

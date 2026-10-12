@@ -36,10 +36,11 @@ function renderAnchoredFeed(){const id=rootId(),selector='.feed-entry[data-root=
 function renderHome(){
  const tabs='<div class="tabs"><button class="tab '+(state.tab==='for-you'?'active':'')+'" data-tab="for-you">For You</button><button class="tab '+(state.tab==='following'?'active':'')+'" data-tab="following">Following</button></div>';
  const list=roots();
+ const preview=authUser?'<div class="feed-profile-preview">'+profileCard(profile,true,true)+'</div>':'';
  const status=socialStatus();
  if(!social.ready||social.error)return header('Your feed',tabs)+'<div class="page-content">'+status+'</div>';
- if(!list.length)return header('Your feed',tabs)+'<div class="social-feed-toolbar"><button id="feed-refresh" class="secondary-btn" data-social-action="refresh">Refresh feed</button></div><div class="page-content">'+empty('compass',state.tab==='following'?'Find your people':'Welcome to Zopathy',state.tab==='following'?'Follow people to see their posts here.':'Be the first to share something.',state.tab==='following'?'Explore people':'Create a post',state.tab==='following'?'discover':'studio')+'</div>';
- return header('Your feed',tabs)+'<div class="social-feed-toolbar"><button id="feed-refresh" class="secondary-btn" data-social-action="refresh">'+(social.changed?'Updates available · Refresh':'Refresh feed')+'</button></div><div class="timeline">'+list.map((id,index)=>{
+ if(!list.length)return header('Your feed',tabs)+preview+'<div class="social-feed-toolbar"><button id="feed-refresh" class="secondary-btn" data-social-action="refresh">Refresh feed</button></div><div class="page-content">'+empty('compass',state.tab==='following'?'Find your people':'Welcome to Zopathy',state.tab==='following'?'Follow people to see their posts here.':'Be the first to share something.',state.tab==='following'?'Explore people':'Create a post',state.tab==='following'?'discover':'studio')+'</div>';
+ return header('Your feed',tabs)+preview+'<div class="social-feed-toolbar"><button id="feed-refresh" class="secondary-btn" data-social-action="refresh">'+(social.changed?'Updates available · Refresh':'Refresh feed')+'</button></div><div class="timeline">'+list.map((id,index)=>{
   const active=index===state.rootIndex,path=active?state.path:[],p=getPost(path.at(-1)||id),connection=path.length?(edges[path.length===1?id:path.at(-2)]||[]).find(e=>e.to===p.id):null,savedPath=paths[id];
   const transition=state.transition;if(!active)state.transition='';const card=postCard(p);state.transition=transition;
   return '<section class="feed-entry" data-root="'+id+'" aria-label="Feed post '+(index+1)+'"><div class="post-wrap gesture-area">'+
