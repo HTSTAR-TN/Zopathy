@@ -22,13 +22,16 @@ Keep unrelated email and verification records. Replace conflicting web-hosting r
 
 ## Release boundaries
 
-This first release uses illustrative sample creators and posts. It has no accounts or backend yet. Posts, comments, follows, bookmarks, uploaded profile images, and exploration history remain in each visitor's browser and are not shared with other visitors. Media cards are visual previews without playback.
+Email accounts use Supabase Auth with email verification, sign-in, sign-out, and password recovery. Resend delivers authentication emails. Profile customization is stored in Supabase and follows the account across devices. Public profiles contain no email addresses; row-level security permits each user to update only their own profile.
 
-The `curiosity.*` storage keys are intentionally retained to preserve existing browser data. Data from local files or another domain does not transfer automatically to zopathy.live.
+The feed still uses illustrative sample creators and posts. Posts, comments, follows, bookmarks, and exploration history remain in each visitor's browser and are not shared with other visitors. Signed-in users have separate browser storage per account. Site theme remains a browser preference. Media cards are visual previews without playback. Local-file data does not transfer automatically to zopathy.live.
+
+`config.js` contains only a public Supabase URL and publishable key. Never add SMTP credentials, database passwords, Supabase secret keys, or service-role keys to this repository. The bundled Supabase SDK is pinned to 2.117.3. Authentication requires HTTPS, except for localhost development.
 
 ## Source
 
 - `index.html`, `style.css`, `app.js`, `profile.js`: application
+- `account.js`, `config.js`, `supabase-2.117.3.js`: account integration
 - `logo.svg`, `favicon.svg`: Zopathy identity
 - `CNAME`: custom-domain configuration
 

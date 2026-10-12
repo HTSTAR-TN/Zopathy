@@ -31,7 +31,7 @@
 <a class="logo" href="#home" aria-label="Zopathy home"><svg class="zopathy-mark" viewBox="0 0 40 40" aria-hidden="true"><path d="M8 9h20L8 29h20"/><path class="zopathy-branch" d="M18 19h12"/><circle cx="32" cy="19" r="3"/></svg><span class="zopathy-wordmark">zopathy</span></a>
 <nav id="main-nav" aria-label="Main navigation"></nav>
 <button class="create-btn" data-page="studio">Create a post <svg><use href="#i-plus"/></svg></button>
-<button class="user-chip" data-page="profile"><span class="avatar you">G</span><span><strong id="sidebar-name">Grant</strong><small>@grant · Just exploring</small></span><span class="dots">···</span></button>
+<div id="account-controls" class="account-controls"></div>
 </aside>
 <main id="main" tabindex="-1"></main>
 <aside class="rightbar">
@@ -43,6 +43,10 @@
 </div>
 <div id="toast" role="status"></div>
 <dialog id="dialog"><button class="dialog-close icon-btn" aria-label="Close dialog"><svg><use href="#i-close"/></svg></button><div id="dialog-content"></div></dialog>
+<script src="config.js"></script>
+<script src="supabase-2.117.3.js"></script>
+<script src="account.js"></script>
 <script src="profile.js"></script>
 <script src="app.js"></script>
 </body></html>
+
