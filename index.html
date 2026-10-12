@@ -6,7 +6,7 @@
 <meta name="description" content="Zopathy is a social discovery experience with a continuous feed, connected posts, and customizable profiles.">
 <meta name="theme-color" content="#101014">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=social-v1"><link rel="stylesheet" href="social.css?v=social-v1">
 </head>
 <body>
 <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg"><defs>
@@ -35,18 +35,20 @@
 </aside>
 <main id="main" tabindex="-1"></main>
 <aside class="rightbar">
-<label class="search"><svg><use href="#i-search"/></svg><input id="search" placeholder="Search Zopathy" aria-label="Search sample posts"><kbd>/</kbd></label>
+<label class="search"><svg><use href="#i-search"/></svg><input id="search" placeholder="Search Zopathy" aria-label="Search posts and people"><kbd>/</kbd></label>
 <section id="related-panel"></section>
-<section class="people-panel"><div class="section-head"><h3>Suggested people</h3><span>↗</span></div><div class="person"><span class="avatar violet">M</span><div><strong>Maya Chen</strong><small>@mayamakes</small></div><button class="follow-btn" data-follow="maya">Follow</button></div><div class="person"><span class="avatar orange">J</span><div><strong>Jules Rivera</strong><small>@jules.wav</small></div><button class="follow-btn" data-follow="jules">Follow</button></div></section>
-<footer><button data-page="settings">Settings & privacy</button><span>Zopathy © 2026 · Early preview</span></footer>
+<section id="people-panel" class="people-panel"></section>
+<footer><button data-page="settings">Settings & privacy</button><span>Zopathy © 2026 · Community</span></footer>
 </aside>
 </div>
 <div id="toast" role="status"></div>
 <dialog id="dialog"><button class="dialog-close icon-btn" aria-label="Close dialog"><svg><use href="#i-close"/></svg></button><div id="dialog-content"></div></dialog>
 <script src="config.js"></script>
 <script src="supabase-2.117.3.js"></script>
-<script src="account.js"></script>
-<script src="profile.js"></script>
-<script src="app.js"></script>
+<script src="account.js?v=social-v1"></script>
+<script src="profile.js?v=social-v1"></script>
+<script src="social.js?v=social-v1"></script>
+<script src="app.js?v=social-v1"></script>
 </body></html>
+
 

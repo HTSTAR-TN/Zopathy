@@ -22,15 +22,15 @@ function setAuthMessage(message,error=false){authNotice=message;const el=$('#aut
 async function applyAccountUser(user){
  const previousId=authUser?.id;const generation=++authGeneration;authUser=user||null;accountUsername=authUser?'z_'+authUser.id.replaceAll('-','').slice(0,20):'you';
  if(previousId!==authUser?.id){draft={title:'',text:'',blocks:[]};closeDialog();}
- history=read('history',[]);paths=read('paths',{});likes=read('likes',[]);bookmarks=read('bookmarks',[]);reposts=read('reposts',[]);comments=read('comments',{});following=read('following',['alex']);customPosts=read('posts',[]);state.rootIndex=0;state.path=[];state.trail=false;state.why=false;
- profile=authUser?normalizeProfile(read('profile',{...profileDefaults,name:authUser.user_metadata?.display_name||'Explorer',bio:'',status:''})):normalizeProfile(profileDefaults);
+ resetSocial();prefs={saveHistory:true,siteTheme:'red',...read('preferences',{})};state.focusPost=null;state.rootIndex=0;state.path=[];state.trail=false;state.why=false;
+ profile=authUser?normalizeProfile({...profileDefaults,name:authUser.user_metadata?.display_name||'Explorer',bio:'',status:''}):normalizeProfile(profileDefaults);
  if(authUser&&authClient){
   const {data,error}=await authClient.from('zopathy_profiles').select('id,username,display_name,bio,status,appearance').eq('id',authUser.id).maybeSingle();
   if(generation!==authGeneration)return;
-  if(data){accountUsername=data.username;profile=normalizeProfile({...data.appearance,name:data.display_name,bio:data.bio,status:data.status});write('profile',profile)}
+  if(data){accountUsername=data.username;profile=normalizeProfile({...data.appearance,name:data.display_name,bio:data.bio,status:data.status});}
   else if(error){toast('Your account is signed in, but its profile could not load. Please try again.');}
  }
- if(generation===authGeneration)render();
+ if(generation===authGeneration){await loadSocial();if(generation===authGeneration)await socialLoadDeepLink()}
 }
 async function persistAccountProfile(candidate){
  if(!authUser||!authClient)throw Error('Sign in to save your profile.');
@@ -38,7 +38,7 @@ async function persistAccountProfile(candidate){
  const {data,error}=await authClient.from('zopathy_profiles').update({display_name:name,bio,status,appearance}).eq('id',owner).select('id').single();
  if(error||!data)throw Error('Your profile could not be saved. Please try again.');
  if(authUser?.id!==owner)throw Error('Your account changed. Sign in again before saving.');
- write('profile',candidate);
+ const row=social.profiles.get(owner);if(row)social.profiles.set(owner,{...row,display_name:name,bio,status,appearance});for(const p of customPosts)if(p.user===owner)p.author={...row,display_name:name,bio,status,appearance};
 }
 function friendlyAuthError(error){
  const code=error?.code||'';
@@ -85,7 +85,7 @@ async function handleAuthAction(action){
  if(action==='resend'&&authUser&&authClient){const {error}=await authClient.auth.resend({type:'signup',email:authUser.email,options:{emailRedirectTo:location.origin+'/'}});toast(error?friendlyAuthError(error):'Verification email requested. Check your inbox.')}
 }
 async function initializeAccounts(){
- if(!authConfigured()||!authTransportSecure()||!window.supabase?.createClient){authReady=false;render();return}
+ if(!authConfigured()||!authTransportSecure()||!window.supabase?.createClient){authReady=false;social.ready=true;social.error='Open Zopathy using HTTPS to load the shared community.';render();return}
  authClient=window.supabase.createClient(window.ZOPATHY_CONFIG.supabaseUrl,window.ZOPATHY_CONFIG.publishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'pkce',storageKey:'zopathy.auth.session'}});
  authClient.auth.onAuthStateChange((event,session)=>{
   if(event==='INITIAL_SESSION')return;

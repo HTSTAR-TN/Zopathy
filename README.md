@@ -1,6 +1,6 @@
 # Zopathy
 
-The first public preview of Zopathy: a continuous social feed, connected posts, a composer, customized profiles, and red / teal themes.
+Zopathy is a shared social network with accounts, public posts, connected conversations, customizable profiles, and red / teal themes.
 
 ## Hosting
 
@@ -24,7 +24,11 @@ Keep unrelated email and verification records. Replace conflicting web-hosting r
 
 Email accounts use Supabase Auth with email verification, sign-in, sign-out, and password recovery. Resend delivers authentication emails. Profile customization is stored in Supabase and follows the account across devices. Public profiles contain no email addresses; row-level security permits each user to update only their own profile.
 
-The feed still uses illustrative sample creators and posts. Posts, comments, follows, bookmarks, and exploration history remain in each visitor's browser and are not shared with other visitors. Signed-in users have separate browser storage per account. Site theme remains a browser preference. Media cards are visual previews without playback. Local-file data does not transfer automatically to zopathy.live.
+Posts, replies, likes, reposts, follows, bookmarks, exploration history, and account preferences are stored in Supabase. The feed contains real user content and counts. Photos, audio, and video use Supabase Storage with a 6 MB file limit and native playback controls. Removed posts and replies can be restored by their authors.
+
+Posts, profile information, uploaded media, likes, reposts, follows, and connections are public. Bookmarks, exploration history, and account preferences are private to their owners. The browser never stores social changes as a fallback when the backend fails. A signed-out theme preference may remain in browser storage. Previous local posts can be reviewed individually before being published; they are not uploaded automatically.
+
+Explore follows member-created connections and offers related posts based on a shared topic or author. Public links open specific posts. Search queries Supabase, and the feed supports loading more posts. A background check every 30 seconds announces available updates; it does not interrupt an open editor or change the feed underneath a reader.
 
 `config.js` contains only a public Supabase URL and publishable key. Never add SMTP credentials, database passwords, Supabase secret keys, or service-role keys to this repository. The bundled Supabase SDK is pinned to 2.117.3. Authentication requires HTTPS, except for localhost development.
 
@@ -32,6 +36,7 @@ The feed still uses illustrative sample creators and posts. Posts, comments, fol
 
 - `index.html`, `style.css`, `app.js`, `profile.js`: application
 - `account.js`, `config.js`, `supabase-2.117.3.js`: account integration
+- `social.js`, `social.css`: shared social data, uploads, interactions, and views
 - `logo.svg`, `favicon.svg`: Zopathy identity
 - `CNAME`: custom-domain configuration
 
