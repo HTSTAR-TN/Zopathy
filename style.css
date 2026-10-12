@@ -34,3 +34,19 @@ body{background:var(--bg);color:var(--text)}.sidebar,.rightbar{background:var(--
 .account-restoring{font-size:12px;line-height:1.7;color:var(--muted)}
 .account-restoring button{display:block;margin-top:10px}
 @media(max-width:640px){.feed-profile-preview{margin:16px 16px 0}.feed-profile-card .profile-details{padding:0 16px 15px}}
+
+.profile-banner-edit{display:block;width:100%;text-align:right;padding:12px;position:relative}
+.profile-banner-edit>span{display:inline-flex;align-items:center;gap:5px;background:#101014b8;border:1px solid #ffffff30;border-radius:7px;padding:6px 8px;font-size:10px;color:#fff;opacity:0;transition:opacity .15s}
+.profile-banner-edit:hover>span,.profile-banner-edit:focus-visible>span{opacity:1}
+.profile-banner-edit svg{width:13px;height:13px}
+.profile-avatar-edit{padding:0;position:relative;z-index:1;flex-shrink:0}
+.personal-profile .profile-top .profile-avatar-edit{margin-top:0;background:transparent}
+#profile-crop-editor{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin:18px 0}
+#profile-crop-editor[hidden]{display:none}
+#profile-crop-editor h3{margin:0 0 8px;font-size:18px}
+#profile-crop-editor p{color:var(--muted);font-size:12px;line-height:1.7}
+#profile-crop-canvas{display:block;width:100%;height:auto;background:#08080b;cursor:grab;touch-action:none;border-radius:8px}
+#profile-crop-canvas:active{cursor:grabbing}
+#profile-crop-zoom{width:100%;accent-color:var(--accent)}
+.crop-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+@media(hover:none){.profile-banner-edit>span{opacity:1}}
