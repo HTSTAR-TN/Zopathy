@@ -6,7 +6,7 @@ Zopathy is a shared social network with accounts, public posts, connected conver
 
 This repository hosts the static site through GitHub Pages. No dependencies or build step are required.
 
-In **Settings ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ Pages**, use **Deploy from a branch**, select **main** and **/(root)**, and save. The root `index.html` is the entry point and `.nojekyll` disables Jekyll processing.
+In **Settings → Pages**, use **Deploy from a branch**, select **main** and **/(root)**, and save. The root `index.html` is the entry point and `.nojekyll` disables Jekyll processing.
 
 The custom domain is **zopathy.live**. Set this in GitHub's Pages settings before configuring domain-provider DNS. Use these apex A records:
 
@@ -55,7 +55,7 @@ Horizontal exploration updates only the active post viewer. Author details, navi
 
 The sidebar recommends up to five people you do not follow. Trending groups topics in recently loaded community posts from the last seven days, ranking post volume, distinct authors, and likes/comments/reposts. Select a trend to search shared posts. This is a lightweight feed-based ranking, not a global analytics service.
 
-Customize profile â†’ About you lets members choose a unique, lowercase handle (3â€“24 letters, numbers, or underscores). Supabase enforces uniqueness and owner-only updates. New accounts use short generated defaults; existing custom handles are preserved. Run the handle update migration for an existing deployment.
+Customize profile → About you lets members choose a unique, lowercase handle (3–24 letters, numbers, or underscores). Supabase enforces uniqueness and owner-only updates. New accounts use short generated defaults; existing custom handles are preserved. Run the handle update migration for an existing deployment.
 
 ## Personal Profile Designer
 
