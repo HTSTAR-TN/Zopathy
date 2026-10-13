@@ -6,7 +6,7 @@ Zopathy is a shared social network with accounts, public posts, connected conver
 
 This repository hosts the static site through GitHub Pages. No dependencies or build step are required.
 
-In **Settings → Pages**, use **Deploy from a branch**, select **main** and **/(root)**, and save. The root `index.html` is the entry point and `.nojekyll` disables Jekyll processing.
+In **Settings â†’ Pages**, use **Deploy from a branch**, select **main** and **/(root)**, and save. The root `index.html` is the entry point and `.nojekyll` disables Jekyll processing.
 
 The custom domain is **zopathy.live**. Set this in GitHub's Pages settings before configuring domain-provider DNS. Use these apex A records:
 
@@ -47,6 +47,6 @@ Explore follows member-created connections and offers related posts based on a s
 
 ## Rabbit-hole viewer
 
-Horizontal exploration updates only the active post viewer. Author details, navigation controls, social actions, and neighboring feed entries retain their containers while content slides for 240 ms. Text posts use a spacious reading layout; photos, videos, audio, and custom sections retain appropriate layouts. A relationship label shows shared topics or member connections. Back retraces one step; Main feed returns to the root immediately. Vertical scrolling remains native. Reduced-motion preferences disable the slide, and departing media is paused. Custom layouts can grow naturally rather than being forced into a fixed card height.
+Horizontal exploration updates only the active post viewer. Author details, navigation controls, social actions, and neighboring feed entries retain their containers while content slides for 240 ms. Text posts use a compact, top-aligned reading layout and the viewer smoothly shrinks to their natural height; photos, videos, audio, and custom sections retain appropriate layouts. A relationship label shows shared topics or member connections. Back retraces one step; Main feed returns to the root immediately. Vertical scrolling remains native. Reduced-motion preferences disable the slide, and departing media is paused. Custom layouts can grow naturally rather than being forced into a fixed card height.
 
 `responsive-check.html` embeds the actual public site in a narrow viewport for responsive QA. It has no sample runtime or additional dependencies.

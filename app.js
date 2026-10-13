@@ -33,7 +33,6 @@ function postCard(p,options){return socialPostCard(p,options)}
 function trailHTML(path=state.path,root=rootId(),interactive=true){return `<div class="trail" aria-label="Exploration trail">${[root,...path].map((id,i)=>`${i?'<span>→</span>':''}<button ${interactive?`data-trail="${i}"`:''}>${esc(getPost(id)?.topic||'Post')}</button>`).join('')}</div>`}
 function activateFeedRoot(id){const index=roots().indexOf(id);if(index<0||index===state.rootIndex)return;const previous=rootId(),entry=$('.feed-entry[data-root="'+id+'"]'),before=entry?.getBoundingClientRect().top;remember();state.rootIndex=index;state.path=[];state.trail=false;state.why=false;updateFeedViewer($('.feed-entry[data-root="'+previous+'"]'),previous,[]);const after=entry?.getBoundingClientRect().top;if(Number.isFinite(before)&&Number.isFinite(after)&&before!==after)window.scrollBy(0,after-before)}
 function visibleFeedRoot(){const entries=[...document.querySelectorAll('.feed-entry')];return entries.filter(el=>{const r=el.getBoundingClientRect();return r.bottom>120&&r.top<window.innerHeight}).sort((a,b)=>Math.abs(a.getBoundingClientRect().top-100)-Math.abs(b.getBoundingClientRect().top-100))[0]?.dataset.root}
-const viewerFloors=new Map();
 const viewerMotions=new Map();
 function viewerExtras(root,path){const savedPath=paths[root],relationship=path.length?postRelationship(path.length===1?root:path.at(-2),path.at(-1)):null;return (path.length&&state.why&&relationship?'<p class="viewer-explanation">'+esc(relationship.reason)+'</p>':'')+ (path.length&&state.trail?trailHTML(path,root):'')+(path.length?'<button class="viewer-trail-toggle" data-action="trail" aria-expanded="'+state.trail+'">'+icon('history')+' '+(state.trail?'Hide trail':'View trail')+'</button>':savedPath?.length?'<div class="connection"><button data-action="resume-path">'+icon('history')+' Resume your rabbit hole · '+savedPath.length+' deep '+icon('arrow')+'</button></div>':'')}
 function finishViewerMotion(root){const finish=viewerMotions.get(root);if(finish)finish()}
@@ -41,8 +40,7 @@ function updateFeedViewer(entry,root,path,transition=''){
  const shell=entry?.querySelector?.('.post-viewer');if(!shell)return false;
  finishViewerMotion(root);const p=getPost(path.at(-1)||root);if(!p)return false;
  const stage=shell.querySelector('.post-stage'),old=stage.querySelector('.viewer-layer'),changed=shell.dataset.postId!==p.id,oldHeight=stage.getBoundingClientRect().height,focusAction=shell.contains(document.activeElement)?document.activeElement?.dataset?.action:null;
- if(path.length&&!viewerFloors.has(root)){const max=Math.max(280,Math.min(700,window.innerHeight*.72));viewerFloors.set(root,Math.min(max,Math.max(260,stage.getBoundingClientRect().height)))}
- const floor=path.length?(viewerFloors.get(root)||260):0;if(!path.length)viewerFloors.delete(root);
+ const floor=0; // Each post keeps its natural height, including short text posts.
  shell.classList.toggle('is-exploring',!!path.length);shell.dataset.viewDepth=String(path.length);
  shell.querySelector('.post-navigation').innerHTML=socialViewerNavigation(p,root,path);
  entry.querySelector('.viewer-extras').innerHTML=viewerExtras(root,path);
@@ -74,7 +72,7 @@ function renderHome(){
  if(!list.length)return header('Your feed',tabs)+preview+'<div class="social-feed-toolbar"><button id="feed-refresh" class="secondary-btn" data-social-action="refresh">Refresh feed</button></div><div class="page-content">'+empty('compass',state.tab==='following'?'Find your people':'Welcome to Zopathy',state.tab==='following'?'Follow people to see their posts here.':'Be the first to share something.',state.tab==='following'?'Explore people':'Create a post',state.tab==='following'?'discover':'studio')+'</div>';
  return header('Your feed',tabs)+preview+'<div class="social-feed-toolbar"><button id="feed-refresh" class="secondary-btn" data-social-action="refresh">'+(social.changed?'Updates available · Refresh':'Refresh feed')+'</button></div><div class="timeline">'+list.map((id,index)=>{
   const path=index===state.rootIndex?state.path:[],p=getPost(path.at(-1)||id);
-  return '<section class="feed-entry" data-root="'+id+'" aria-label="Feed post '+(index+1)+'"><div class="post-wrap gesture-area">'+postCard(p,{root:id,path,floor:path.length?(viewerFloors.get(id)||260):0})+'<div class="viewer-extras">'+viewerExtras(id,path)+'</div></div></section>';
+  return '<section class="feed-entry" data-root="'+id+'" aria-label="Feed post '+(index+1)+'"><div class="post-wrap gesture-area">'+postCard(p,{root:id,path})+'<div class="viewer-extras">'+viewerExtras(id,path)+'</div></div></section>';
  }).join('')+'</div><div class="feed-bottom">'+(social.more?'<button class="secondary-btn" data-social-action="more">Load more posts</button>':'<span>You’re caught up</span>')+'</div>';
 }
 function empty(ic,title,text,cta,page){return `<div class="empty-state">${icon(ic)}<h2>${esc(title)}</h2><p>${esc(text)}</p>${cta?`<button class="primary" data-page="${page}">${esc(cta)} ${icon('arrow')}</button>`:''}</div>`}
@@ -172,5 +170,4 @@ initializeAccounts();
 
 $('#dialog').addEventListener('cancel',e=>{if(profileCrop){e.preventDefault();closeProfileCrop()}});
 
-let viewerResizeFrame=0;
-window.addEventListener('resize',()=>{if(viewerResizeFrame)return;viewerResizeFrame=requestAnimationFrame(()=>{viewerResizeFrame=0;if(state.page!=='home'||!state.path.length)return;const root=rootId(),floor=viewerFloors.get(root),max=Math.max(260,Math.min(700,window.innerHeight*.72));if(floor>max){finishViewerMotion(root);viewerFloors.set(root,max);const stage=$('.feed-entry[data-root="'+root+'"] .post-stage');if(stage)stage.style.minHeight=max+'px'}})});
+window.addEventListener('resize',()=>{for(const root of viewerMotions.keys())finishViewerMotion(root)});

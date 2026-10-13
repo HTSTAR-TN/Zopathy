@@ -85,9 +85,9 @@
 .viewer-layer{min-height:inherit;width:100%;box-sizing:border-box;animation:none!important}
 .viewer-incoming{position:absolute;left:0;top:0;width:100%}
 .post-stage.is-transitioning .viewer-layer{will-change:transform}
-.post-viewer.is-exploring .viewer-layer[data-kind="text"]{padding:24px 26px;display:grid;align-content:center}
-.post-viewer.is-exploring .viewer-layer[data-kind="text"] .viewer-content{width:100%;max-width:54ch;margin:0 auto;font-size:17px;line-height:1.8}
-.post-viewer.is-exploring .viewer-layer[data-kind="text"] h2{font-size:25px;line-height:1.35;letter-spacing:-.5px;margin-bottom:14px}
+.post-viewer.is-exploring .viewer-layer[data-kind="text"]{padding:8px 14px 14px}
+.post-viewer.is-exploring .viewer-layer[data-kind="text"] .viewer-content{width:100%;font-size:16px;line-height:1.7}
+.post-viewer.is-exploring .viewer-layer[data-kind="text"] h2{font-size:21px;line-height:1.35;letter-spacing:-.3px;margin-bottom:8px}
 .post-viewer.is-exploring .viewer-layer[data-kind="text"] p{white-space:pre-wrap}
 .post-viewer .social-image img{max-height:min(48vh,440px);object-fit:contain}
 .post-viewer .social-media video{display:block;aspect-ratio:16 / 9;object-fit:contain;max-height:min(48vh,440px);background:#0c0c10}
@@ -99,6 +99,6 @@
 .viewer-trail-toggle svg{width:13px;height:13px}
 .viewer-explanation{font-size:11px;line-height:1.7;color:var(--muted);padding:0 4px;margin:8px 0}
 .rightbar #related-panel{min-height:320px}
-@media(max-width:640px){.post-navigation{gap:7px;padding-left:12px;padding-right:12px;font-size:9px}.post-navigation button{font-size:9px}.viewer-context{gap:5px}.post-viewer.is-exploring .viewer-layer[data-kind="text"]{padding:22px 20px}.post-viewer.is-exploring .viewer-layer[data-kind="text"] .viewer-content{font-size:16px;line-height:1.75}.post-viewer.is-exploring .viewer-layer[data-kind="text"] h2{font-size:22px}}
+@media(max-width:640px){.post-navigation{gap:7px;padding-left:12px;padding-right:12px;font-size:9px}.post-navigation button{font-size:9px}.viewer-context{gap:5px}.post-viewer.is-exploring .viewer-layer[data-kind="text"]{padding:8px 12px 12px}.post-viewer.is-exploring .viewer-layer[data-kind="text"] h2{font-size:20px}}
 @media(prefers-reduced-motion:reduce){.post-viewer,.viewer-layer,.post-stage{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 .post-viewer .viewer-layer[data-kind="photo"] .social-image img{aspect-ratio:16 / 10;object-fit:contain;background:var(--bg)}
