@@ -6,7 +6,7 @@ Zopathy is a shared social network with accounts, public posts, connected conver
 
 This repository hosts the static site through GitHub Pages. No dependencies or build step are required.
 
-In **Settings Ã¢â€ â€™ Pages**, use **Deploy from a branch**, select **main** and **/(root)**, and save. The root `index.html` is the entry point and `.nojekyll` disables Jekyll processing.
+In **Settings ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ Pages**, use **Deploy from a branch**, select **main** and **/(root)**, and save. The root `index.html` is the entry point and `.nojekyll` disables Jekyll processing.
 
 The custom domain is **zopathy.live**. Set this in GitHub's Pages settings before configuring domain-provider DNS. Use these apex A records:
 
@@ -55,7 +55,7 @@ Horizontal exploration updates only the active post viewer. Author details, navi
 
 The sidebar recommends up to five people you do not follow. Trending groups topics in recently loaded community posts from the last seven days, ranking post volume, distinct authors, and likes/comments/reposts. Select a trend to search shared posts. This is a lightweight feed-based ranking, not a global analytics service.
 
-Customize profile → About you lets members choose a unique, lowercase handle (3–24 letters, numbers, or underscores). Supabase enforces uniqueness and owner-only updates. New accounts use short generated defaults; existing custom handles are preserved. Run the handle update migration for an existing deployment.
+Customize profile â†’ About you lets members choose a unique, lowercase handle (3â€“24 letters, numbers, or underscores). Supabase enforces uniqueness and owner-only updates. New accounts use short generated defaults; existing custom handles are preserved. Run the handle update migration for an existing deployment.
 
 ## Personal Profile Designer
 
@@ -68,3 +68,16 @@ Advanced CSS is limited to the isolated canvas, with an 8,000-character/100-rule
 Version 1 design settings are stored as structured `appearance.design` data in the existing profile record. Existing appearance fields remain intact. Run `Zopathy-Profile-Designer-Validation.sql` for an existing database; the account schema includes the same validation for a new setup. Owner-only RLS remains unchanged. Background uploads are decoded and converted to WebP, with a maximum 1,600-pixel edge and 500 KB data URL; image inputs are limited to 20 MB/60 megapixels.
 
 This release includes visual customization and isolated CSS layout freedom. A drag-and-drop section editor, dedicated per-device section ordering, undo/redo, and syntax highlighting are not implemented yet. No widgets or arbitrary HTML/JavaScript are supported.
+
+
+## Public groups
+
+Groups provides shared community discovery, public discussion feeds, membership, and owner moderation. Anyone can browse; signed-in members can create groups or join to post, comment, like, and repost. Bookmarks remain private. Group posts appear in the group discussion and author profiles rather than replacing the main feed. Friendly links use `?group=group-slug`.
+
+Owners can edit the name, description, rules, banner, and accent, remove/restore group posts, restrict/reinstate members, and archive/reopen the group. Owners cannot leave their own group, alter another author's content, or restore a post the author privately removed. Restricted accounts can still browse public content. Archives preserve history and stop new participation.
+
+For a new database, install the Account and Social schemas first, then run `Zopathy-Groups-Schema.sql` once in Supabase SQL Editor. For this live deployment the groups migration is already installed. It adds groups, memberships, and optional group/moderation fields to existing posts; existing posts stay in the main feed. Supabase policies and RPCs enforce access independently of the browser UI. Uploaded banners use the existing media bucket and are cropped to 3:1.
+
+The first release supports public groups only. There are no private groups, invitations, group chat, additional moderator roles, or push notifications. Discovery loads 50 groups at a time, discussions 25 posts at a time, and member/moderation lists up to 100/50 entries. Refresh updates a group's shared data. Creating a group is limited to 20 active owned groups per account.
+
+Tests cover anonymous browsing, atomic creation, repeat joins, real counts, nonmember restrictions, role forgery, owner controls, author privacy, bans, leaving, and archive/reopen. Database fixtures were rolled back, so no test groups or posts remain. Frontend tests cover discovery, escaped content, group posting, routing, draft preservation, and account reset.
