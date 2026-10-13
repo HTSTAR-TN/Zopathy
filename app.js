@@ -72,7 +72,7 @@ function editProfile(){openProfileEditor()}
 document.addEventListener('toggle',e=>{if(e.target.id==='composer-customize')customizeOpen=e.target.open},true);
 let chosenTheme=null;
 document.addEventListener('click',e=>{const el=e.target.closest('button,a');if(!el)return;const d=el.dataset;if(d.authMode){openAccount(d.authMode);return}if(d.authAction){handleAuthAction(d.authAction);return}if(['studio','profile'].includes(d.page)&&!requireAccount())return;if(d.siteTheme){setSiteTheme(d.siteTheme);return}const feedEntry=el.closest('.feed-entry');if(feedEntry)activateFeedRoot(feedEntry.dataset.root);if(d.cropAction){handleCropAction(d.cropAction);return}if(d.profileCrop){if(!requireAccount())return;if(!profileDraft)openProfileEditor();openProfileCrop(d.profileCrop);return}if(handleProfileClick(el,d))return;
-if(el.closest('.dialog-close')){closeDialog();return}
+if(el.closest('.dialog-close')){if(profileCrop)closeProfileCrop();else closeDialog();return}
 if(d.page){e.preventDefault();closeDialog();state.page=d.page;if(d.page==='home')state.focusPost=null;state.search='';$('#search').value='';render();window.scrollTo(0,0);return}
 if(d.tab){remember();state.tab=d.tab;state.focusPost=null;state.rootIndex=0;state.path=[];state.trail=false;render();return}
 if(d.open){closeDialog();openRoot(d.open);return}
@@ -140,3 +140,5 @@ $('#dialog').addEventListener('click',e=>{if(e.target===$('#dialog')){const r=$(
 render();
 initializeAccounts();
 
+
+$('#dialog').addEventListener('cancel',e=>{if(profileCrop){e.preventDefault();closeProfileCrop()}});
