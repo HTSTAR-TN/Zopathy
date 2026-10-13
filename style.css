@@ -68,3 +68,8 @@ dialog.profile-editor-dialog.profile-crop-mode{width:440px;max-width:calc(100vw 
 .profile-crop-mode .crop-cancel{font-size:13px;color:var(--text);padding:9px 0}
 .profile-crop-mode .crop-actions .primary{min-width:95px;justify-content:center;padding:10px 20px;border-radius:6px;font-size:13px}
 @media(max-height:600px){.profile-crop-mode .crop-stage{max-width:220px!important}.profile-crop-mode .crop-hint{margin-bottom:14px}.profile-crop-mode .crop-zoom-row{margin:16px auto}}
+
+/* Match the navigation rhythm while keeping the create action prominent. */
+.sidebar .create-btn{justify-content:flex-start;gap:15px;padding:13px 15px;font-size:14px;font-weight:550;border-radius:11px;margin-top:6px;text-align:left}
+.sidebar .create-btn svg{order:-1;width:21px;height:21px}
+@media(max-width:640px){.nav-item.composer-nav{background:var(--accent);color:var(--button-text)}}
