@@ -10,26 +10,9 @@ function openExplore(id){
  }
  render();window.scrollTo(0,0);
 }
-function exploreControls(){
- const list=roots(),index=list.indexOf(rootId()),depth=state.path.length,connections=related();
- return '<div class="explore-controls" aria-label="Explore navigation">'+
-  '<div class="explore-position" role="status" aria-live="polite">'+(index>=0?(index+1)+' of '+list.length:'Post')+'<span>'+ (depth?' \u00b7 '+depth+' deep':' \u00b7 '+(state.tab==='following'?'Following':'For You'))+'</span></div>'+
-  '<div class="explore-control-buttons">'+
-  '<button class="icon-btn" data-explore-action="previous" aria-label="Previous feed post" aria-keyshortcuts="ArrowUp" '+(index<=0?'disabled':'')+'>'+icon('arrow','style="transform:rotate(-90deg)"')+'</button>'+
-  '<button class="icon-btn" data-explore-action="next" aria-label="Next feed post" aria-keyshortcuts="ArrowDown" '+(index>=list.length-1&&!social.more?'disabled':'')+'>'+icon('arrow','style="transform:rotate(90deg)"')+'</button>'+
-  '<span class="explore-divider"></span><button class="icon-btn" data-action="back" aria-label="Previous related post" aria-keyshortcuts="ArrowLeft" '+(!depth?'disabled':'')+'>'+icon('arrow','style="transform:rotate(180deg)"')+'</button>'+
-  '<button class="secondary-btn" data-explore-action="related" aria-label="Next related post" aria-keyshortcuts="ArrowRight" '+(!connections.length?'disabled':'')+'>'+icon('compass')+'<span>Related</span></button>'+
-  '</div></div>';
-}
-function exploreHeader(){
- return '<header class="explore-header"><div><h1>Explore</h1><span>Follow your curiosity</span></div><div class="explore-header-actions"><button class="icon-btn" data-page="studio" aria-label="Create a post">'+icon('plus')+'</button><button class="icon-btn" data-page="messages" aria-label="Messages">'+icon('comment')+'</button><button class="icon-btn" data-action="browse-menu" aria-label="More destinations">'+icon('settings')+'</button><button class="secondary-btn" data-page="home" aria-label="Return to Home">'+icon('home')+'<span>Home</span></button></div></header>';
-}
-function renderExplore(){
- const p=current();
- if(!social.ready||social.error)return exploreHeader()+'<div class="page-content">'+socialStatus()+'</div>';
- if(!p)return exploreHeader()+'<div class="page-content">'+empty('compass','Ready for something new?',state.tab==='following'?'Follow people to fill your feed.':'New community posts will appear here.','Find people','discover')+'</div>';
- return exploreHeader()+'<div class="explore-workspace"><section class="feed-entry explore-entry" data-explore-viewer data-root="'+rootId()+'" aria-label="Explore post">'+postCard(p,{root:rootId(),path:state.path})+'<div class="viewer-extras">'+viewerExtras(rootId(),state.path)+'</div></section><div id="explore-control-slot">'+exploreControls()+'</div><p class="explore-hint">Swipe up for the next post. Swipe left for related posts.</p></div>';
-}
+function exploreControls(){return exploreStageControls();}
+function exploreHeader(){return exploreStageHeader();}
+function renderExplore(){return exploreStagePage();}
 function exploreUpdateControls(){
  const slot=$('#explore-control-slot');if(slot){
   const html=exploreControls(),focused=slot.contains?.(document.activeElement)?document.activeElement:null;
@@ -38,16 +21,7 @@ function exploreUpdateControls(){
  }
  exploreMeasureBody();explorePreload();
 }
-function exploreMeasureBody(){
- if(state.page!=='explore')return;
- for(const body of document.querySelectorAll('.explore-entry .viewer-layer')){
-  const content=body.querySelector('.viewer-content');
-  body.classList.toggle('is-long-text',body.dataset.kind==='text'&&(content?.textContent.length||0)>700);
-  body.dataset.scrollable=String(body.scrollHeight>body.clientHeight+2);
-  body.setAttribute('tabindex','0');body.setAttribute('aria-label','Post content. Scroll here to read long posts.');
-  for(const image of body.querySelectorAll('img'))image.loading='eager';
- }
-}
+function exploreMeasureBody(){exploreLayout();}
 function explorePreload(){
  if(state.page!=='explore'||typeof Image==='undefined')return;
  const list=roots(),index=list.indexOf(rootId());
@@ -75,14 +49,14 @@ async function exploreAdvance(step){
  if(entry){entry.dataset.root=next;renderAnchoredFeed()}else render();
 }
 function exploreHasSelection(){return typeof window.getSelection==='function'&&!window.getSelection().isCollapsed}
-function exploreInputProtected(target){return !!target?.closest?.('button,a,input,textarea,select,summary,audio,video,[contenteditable],[data-gallery]')}
+function exploreInputProtected(target){return !!target?.closest?.('button,a,input,textarea,select,summary,audio,video,[contenteditable],[data-gallery],[role=button],[role=slider],[role=switch],[data-no-navigation]')}
 function exploreInnerScroll(target){const body=target?.closest?.('.viewer-layer');return !!body&&body.scrollHeight>body.clientHeight+2}
 function exploreNavigateGesture(axis,delta){if(axis==='x'){delta>0?goDeeper():back()}else exploreAdvance(delta>0?1:-1)}
 function bindExploreGestures(){
  const area=$('[data-explore-viewer]');if(!area||area.dataset.exploreBound)return;area.dataset.exploreBound='true';let start=null;
  area.addEventListener('touchstart',event=>{
   start=null;if(event.touches.length!==1||exploreInputProtected(event.target)||exploreHasSelection())return;
-  const touch=event.touches[0];start={x:touch.clientX,y:touch.clientY,target:event.target,revision:browsing.revision,axis:null};
+  const touch=event.touches[0];if(touch.clientX<=16||(window.innerWidth&&touch.clientX>=window.innerWidth-16))return;start={x:touch.clientX,y:touch.clientY,target:event.target,revision:browsing.revision,axis:null};
  },{passive:true});
  area.addEventListener('touchmove',event=>{
   if(!start)return;if(event.touches.length!==1||exploreHasSelection()){start=null;return}
@@ -113,9 +87,9 @@ document.addEventListener('wheel',event=>{
  if(Math.abs(immersive.wheelTotal)>=(axis==='x'?40:65)){immersive.wheelConsumed=true;exploreNavigateGesture(axis,immersive.wheelTotal)}
 },{passive:false});
 document.addEventListener('keydown',event=>{
- if(event.defaultPrevented||state.page!=='explore'||$('#dialog').open||exploreInputProtected(event.target)||event.target?.isContentEditable||exploreHasSelection())return;
+ if(event.defaultPrevented||event.ctrlKey||event.altKey||event.metaKey||event.shiftKey||state.page!=='explore'||$('#dialog').open||exploreInputProtected(event.target)||event.target?.isContentEditable||exploreHasSelection())return;
  if(['ArrowDown','ArrowUp'].includes(event.key)&&exploreInnerScroll(event.target))return;
- const actions={ArrowDown:()=>exploreAdvance(1),ArrowUp:()=>exploreAdvance(-1),ArrowRight:()=>goDeeper(),ArrowLeft:()=>back(),Escape:()=>{state.page='home';render()}};
+ const actions={ArrowDown:()=>exploreAdvance(1),ArrowUp:()=>exploreAdvance(-1),ArrowLeft:()=>goDeeper(),ArrowRight:()=>back(),Escape:()=>{state.page='home';render()}};
  if(actions[event.key]){event.preventDefault();actions[event.key]()}
 });
 document.addEventListener('click',event=>{
