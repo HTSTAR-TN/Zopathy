@@ -55,3 +55,15 @@
 .timeline .connection button{font-size:10px;gap:6px}
 .timeline .connection svg{width:13px;height:13px}
 .timeline .connection p{font-size:11px;margin-top:7px}
+
+/* The crop and every banner surface share the same frame. */
+.feed-identity-banner{height:auto;aspect-ratio:3 / 1;min-height:0;max-height:none}
+.feed-banner-image{object-fit:cover;object-position:center}
+.unified-profile .feed-identity-banner{border:0;border-radius:0}
+.profile-meta{padding:16px 20px 20px}
+.profile-meta-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.profile-meta-top button{font-size:11px}
+.profile-status,.profile-meta .profile-bio{font-size:12px;color:var(--muted);line-height:1.7}
+.profile-meta .badges{margin:13px 0}
+.profile-meta .profile-stats{margin-top:15px}
+@media(max-width:640px){.feed-identity-banner{height:auto;aspect-ratio:3 / 1}.feed-banner-avatar .avatar{width:54px;height:54px}.feed-banner-name strong{font-size:24px}.feed-banner-name{max-width:calc(100% - 84px)}.profile-meta{padding:14px 16px}}
