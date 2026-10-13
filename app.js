@@ -140,7 +140,7 @@ let touchStart=null;
 function bindGestures(){
  document.querySelectorAll('.gesture-area').forEach(area=>{
   if(area.dataset.gestureBound)return;area.dataset.gestureBound='true';
-  area.addEventListener('touchstart',e=>{touchStart=null;if(e.touches.length!==1||e.target.closest('button,a,input,textarea,select,summary,video,audio,[contenteditable]'))return;const t=e.touches[0];touchStart={x:t.clientX,y:t.clientY,root:area.closest('.feed-entry').dataset.root}},{passive:true});
+  area.addEventListener('touchstart',e=>{touchStart=null;if(e.touches.length!==1||e.target.closest('button,a,input,textarea,select,summary,audio,[contenteditable]'))return;const t=e.touches[0],video=e.target.closest('video');if(video&&t.clientY>video.getBoundingClientRect().bottom-48)return;touchStart={x:t.clientX,y:t.clientY,root:area.closest('.feed-entry').dataset.root}},{passive:true});
   area.addEventListener('touchmove',e=>{if(!touchStart)return;if(e.touches.length!==1){touchStart=null;return}const t=e.touches[0],dx=t.clientX-touchStart.x,dy=t.clientY-touchStart.y;if(Math.abs(dx)>Math.max(12,Math.abs(dy)*1.2)&&e.cancelable)e.preventDefault()},{passive:false});
   area.addEventListener('touchcancel',()=>{touchStart=null},{passive:true});
   area.addEventListener('touchend',e=>{if(!touchStart)return;const start=touchStart;touchStart=null;const t=e.changedTouches[0];if(!t)return;const dx=t.clientX-start.x,dy=t.clientY-start.y;if(Math.abs(dx)>=40&&Math.abs(dx)>Math.abs(dy)*1.2){activateFeedRoot(start.root);dx<0?goDeeper():back()}},{passive:true});
