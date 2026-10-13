@@ -23,7 +23,7 @@ function setAuthMessage(message,error=false){authNotice=message;const el=$('#aut
 async function applyAccountUser(user){
  const previousId=authUser?.id;const generation=++authGeneration;authUser=user||null;accountUsername=authUser?'z_'+authUser.id.replaceAll('-','').slice(0,8):'you';
  if(previousId!==authUser?.id){draft={title:'',text:'',blocks:[]};closeDialog();}
- resetSocial();prefs={saveHistory:true,siteTheme:'red',...read('preferences',{})};state.focusPost=null;state.rootIndex=0;state.path=[];state.trail=false;state.why=false;
+ resetSocial();prefs={saveHistory:true,siteTheme:'red',browseDestination:'home',...read('preferences',{})};state.focusPost=null;state.rootPostId=null;state.rootIndex=0;state.path=[];state.trail=false;state.why=false;
  profile=authUser?normalizeProfile({...profileDefaults,name:authUser.user_metadata?.display_name||'Explorer',bio:'',status:''}):normalizeProfile(profileDefaults);
  if(authUser&&authClient){
   const {data,error}=await authClient.from('zopathy_profiles').select('id,username,display_name,bio,status,appearance').eq('id',authUser.id).maybeSingle();
@@ -31,7 +31,7 @@ async function applyAccountUser(user){
   if(data){accountUsername=data.username;profile=normalizeProfile({...data.appearance,name:data.display_name,bio:data.bio,status:data.status});}
   else if(error){toast('Your account is signed in, but its profile could not load. Please try again.');}
  }
- if(generation===authGeneration){await loadSocial();if(generation===authGeneration)await socialLoadDeepLink()}
+ if(generation===authGeneration){await loadSocial();if(generation===authGeneration){browseApplyInitialDestination();await socialLoadDeepLink();if(generation===authGeneration)browseApplyExplicitView()}}
 }
 async function persistAccountProfile(candidate,username=accountUsername){
  if(!authUser||!authClient)throw Error('Sign in to save your profile.');

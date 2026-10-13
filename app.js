@@ -3,9 +3,9 @@ const icon=(name,extra='')=>`<svg ${extra}><use href="#i-${name}"/></svg>`;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(accountStorageKey(key)))??fallback}catch{return fallback}};
 const write=(key,value)=>{try{localStorage.setItem(accountStorageKey(key),JSON.stringify(value))}catch{toast('Browser storage is unavailable. Changes will last for this visit.')}};
-let state={page:'home',tab:'for-you',rootIndex:0,path:[],trail:false,why:false,transition:'',search:''};
+let state={page:'home',tab:'for-you',rootPostId:null,rootIndex:0,path:[],trail:false,why:false,transition:'',search:''};
 let prefs=read('preferences',{saveHistory:true}),history=[],paths={},likes=[],bookmarks=[],reposts=[],comments={},following=[],profile=normalizeProfile(profileDefaults);
-prefs={saveHistory:true,siteTheme:'red',...prefs};if(!['red','teal'].includes(prefs.siteTheme))prefs.siteTheme='red';
+prefs={saveHistory:true,siteTheme:'red',browseDestination:'home',...prefs};if(!['red','teal'].includes(prefs.siteTheme))prefs.siteTheme='red';
 function applySiteTheme(){document.documentElement.dataset.siteTheme=prefs.siteTheme}
 function setSiteTheme(theme){if(['red','teal'].includes(theme))socialSavePreferences({siteTheme:theme})}
 function siteThemePicker(){return '<div class="site-theme-options" role="group" aria-label="Site color theme">'+[['red','Red','#FF455C'],['teal','Teal','#55E6CE']].map(([id,name,color])=>'<button data-site-theme="'+id+'" class="site-theme-option '+(prefs.siteTheme===id?'selected':'')+'" aria-pressed="'+(prefs.siteTheme===id)+'"><span class="theme-preview '+id+'"><i style="background:'+color+'"></i><i></i><i></i></span><strong>'+name+'</strong>'+(prefs.siteTheme===id?'<span class="theme-selected-mark">\u2713</span>':'')+'</button>').join('')+'</div>'}
@@ -14,24 +14,24 @@ let edges={},customPosts=[];
 const allPosts=()=>customPosts;
 const getPost=id=>customPosts.find(p=>p.id===id);
 function roots(){return socialRoots()}
-function rootId(){return roots()[Math.min(state.rootIndex,roots().length-1)]}
+function rootId(){return browseRootId()}
 function currentId(){return state.path.at(-1)||rootId()}
 function current(){return getPost(currentId())}
 function related(id=currentId()){return socialRelated(id)}
 function remember(){socialRemember()}
 function goDeeper(to){socialExplore(to)}
-function back(){if(!state.path.length)return;state.path.pop();state.why=false;state.transition='slide-back';renderAnchoredFeed()}
-function returnMainFeed(){if(!state.path.length)return;state.path=[];state.trail=false;state.why=false;state.transition='';renderAnchoredFeed()}
-function moveFeed(step){const list=roots();if(!list.length)return;const next=Math.max(0,Math.min(list.length-1,state.rootIndex+step));activateFeedRoot(list[next]);render();$('.feed-entry[data-root="'+rootId()+'"]')?.scrollIntoView({behavior:'smooth',block:'start'})}
-function openRoot(id){groupLeaveURL(id);state.focusPost=id;state.tab='for-you';const list=roots();const idx=list.indexOf(id);state.rootIndex=idx<0?0:idx;state.path=idx<0?[id]:[];state.page='home';state.trail=false;state.why=false;state.transition='slide-next';render();$('.feed-entry[data-root="'+rootId()+'"]')?.scrollIntoView({behavior:'smooth',block:'start'})}
+function back(){browseInvalidate();if(!state.path.length)return;state.path.pop();state.why=false;state.transition='slide-back';renderAnchoredFeed()}
+function returnMainFeed(){browseInvalidate();if(!state.path.length)return;state.path=[];state.trail=false;state.why=false;state.transition='';renderAnchoredFeed()}
+function moveFeed(step){const list=roots();if(!list.length)return;rootId();const next=Math.max(0,Math.min(list.length-1,state.rootIndex+step));activateFeedRoot(list[next]);render();$('.feed-entry[data-root="'+rootId()+'"]')?.scrollIntoView({behavior:'smooth',block:'start'})}
+function openRoot(id){browsing.explicit=true;browseInvalidate();browsing.homePosition=null;groupLeaveURL(id);state.focusPost=id;state.rootPostId=null;state.tab='for-you';const list=roots();const idx=list.indexOf(id);state.rootIndex=idx<0?0:idx;state.rootPostId=idx<0?null:id;state.path=idx<0?[id]:[];state.page='home';state.trail=false;state.why=false;state.transition='slide-next';render();$('.feed-entry[data-root="'+rootId()+'"]')?.scrollIntoView({behavior:'smooth',block:'start'})}
 function resume(id){const h=history.find(h=>h.id===id);if(!h)return;openRoot(h.root);state.path=h.path.filter(id=>getPost(id));state.trail=true;render()}
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('#toast').classList.remove('show'),2800)}
-const navigation=[['home','home','Home'],['discover','compass','Explore'],['groups','groups','Groups'],['friends','groups','Friends'],['messages','comment','Messages'],['bookmarks','bookmark','Bookmarks'],['history','history','History'],['studio','plus','Create a post'],['profile','user','Profile'],['settings','settings','Settings']];
-function nav(){applySiteTheme(); $('#main-nav').innerHTML=navigation.map(([page,ic,label])=>`<button class="nav-item ${page==='studio'?'composer-nav':''} ${state.page===page?'active':''}" data-page="${page}" ${state.page===page?'aria-current="page"':''}>${icon(ic)}<span>${label}</span></button>`).join('');accountSidebar();document.documentElement.style.setProperty('--profile-user-accent',profileAccent(profile));document.querySelectorAll('[data-follow]').forEach(b=>b.textContent=following.includes(b.dataset.follow)?'Following':'Follow')}
-function header(title,tabs=''){const next=prefs.siteTheme==='red'?'teal':'red';return '<header class="main-header"><div><h1>'+esc(title)+'</h1>'+tabs+'</div><button class="site-theme-toggle" data-site-theme="'+next+'" aria-label="Switch to '+next+' theme" title="Switch to '+next+' theme"><span class="theme-toggle-dot"></span>'+ (prefs.siteTheme==='red'?'Red':'Teal')+' <span>\u21c4</span></button></header>'}
+const navigation=[['home','home','Home'],['explore','compass','Explore'],['discover','search','Search'],['groups','groups','Groups'],['friends','groups','Friends'],['messages','comment','Messages'],['bookmarks','bookmark','Bookmarks'],['history','history','History'],['studio','plus','Create a post'],['profile','user','Profile'],['settings','settings','Settings']];
+function nav(){applySiteTheme(); $('#main-nav').innerHTML=navigation.map(([page,ic,label])=>`<button class="nav-item ${['home','explore','discover','groups','profile'].includes(page)?'mobile-primary':'mobile-secondary'} ${page==='studio'?'composer-nav':''} ${state.page===page?'active':''}" data-page="${page}" ${state.page===page?'aria-current="page"':''}>${icon(ic)}<span>${label}</span></button>`).join('');accountSidebar();document.documentElement.style.setProperty('--profile-user-accent',profileAccent(profile));document.querySelectorAll('[data-follow]').forEach(b=>b.textContent=following.includes(b.dataset.follow)?'Following':'Follow')}
+function header(title,tabs=''){const next=prefs.siteTheme==='red'?'teal':'red';return '<header class="main-header"><div><h1>'+esc(title)+'</h1>'+tabs+'</div><div class="main-header-tools"><button class="site-theme-toggle" data-site-theme="'+next+'" aria-label="Switch to '+next+' theme" title="Switch to '+next+' theme"><span class="theme-toggle-dot"></span>'+ (prefs.siteTheme==='red'?'Red':'Teal')+' <span>\u21c4</span></button><button class="icon-btn mobile-header-control" data-page="messages" aria-label="Messages">'+icon('comment')+'</button><button class="icon-btn mobile-header-control" data-action="browse-menu" aria-label="More destinations">'+icon('settings')+'</button></div></header>'}
 function postCard(p,options){return socialPostCard(p,options)}
 function trailHTML(path=state.path,root=rootId(),interactive=true){return `<div class="trail" aria-label="Exploration trail">${[root,...path].map((id,i)=>`${i?'<span>\u2192</span>':''}<button ${interactive?`data-trail="${i}"`:''}>${esc(getPost(id)?.topic||'Post')}</button>`).join('')}</div>`}
-function activateFeedRoot(id){const index=roots().indexOf(id);if(index<0||index===state.rootIndex)return;const previous=rootId(),entry=$('.feed-entry[data-root="'+id+'"]'),before=entry?.getBoundingClientRect().top;remember();state.rootIndex=index;state.path=[];state.trail=false;state.why=false;updateFeedViewer($('.feed-entry[data-root="'+previous+'"]'),previous,[]);const after=entry?.getBoundingClientRect().top;if(Number.isFinite(before)&&Number.isFinite(after)&&before!==after)window.scrollBy(0,after-before)}
+function activateFeedRoot(id){const previous=rootId(),index=roots().indexOf(id);if(index<0||id===previous)return;const entry=$('.feed-entry[data-root="'+id+'"]'),before=entry?.getBoundingClientRect().top;remember();browseInvalidate();state.rootPostId=id;state.rootIndex=index;state.path=[];state.trail=false;state.why=false;updateFeedViewer($('.feed-entry[data-root="'+previous+'"]'),previous,[]);const after=entry?.getBoundingClientRect().top;if(Number.isFinite(before)&&Number.isFinite(after)&&before!==after)window.scrollBy(0,after-before)}
 function visibleFeedRoot(){const entries=[...document.querySelectorAll('.feed-entry')];return entries.filter(el=>{const r=el.getBoundingClientRect();return r.bottom>120&&r.top<window.innerHeight}).sort((a,b)=>Math.abs(a.getBoundingClientRect().top-100)-Math.abs(b.getBoundingClientRect().top-100))[0]?.dataset.root}
 const viewerMotions=new Map();
 function viewerExtras(root,path){const savedPath=paths[root],relationship=path.length?postRelationship(path.length===1?root:path.at(-2),path.at(-1)):null;return (path.length&&state.why&&relationship?'<p class="viewer-explanation">'+esc(relationship.reason)+'</p>':'')+ (path.length&&state.trail?trailHTML(path,root):'')+(path.length?'<button class="viewer-trail-toggle" data-action="trail" aria-expanded="'+state.trail+'">'+icon('history')+' '+(state.trail?'Hide trail':'View trail')+'</button>':savedPath?.length?'<div class="connection"><button data-action="resume-path">'+icon('history')+' Resume your rabbit hole \u00b7 '+savedPath.length+' deep '+icon('arrow')+'</button></div>':'')}
@@ -44,40 +44,42 @@ function followViewerShrink(anchor,oldHeight,newHeight,transition,animated){
 function updateFeedViewer(entry,root,path,transition=''){
  const shell=entry?.querySelector?.('.post-viewer');if(!shell)return false;
  finishViewerMotion(root);const p=getPost(path.at(-1)||root);if(!p)return false;
- const stage=shell.querySelector('.post-stage'),old=stage.querySelector('.viewer-layer'),changed=shell.dataset.postId!==p.id,oldHeight=stage.getBoundingClientRect().height,focusAction=shell.contains(document.activeElement)?document.activeElement?.dataset?.action:null;
+ const stage=shell.querySelector('.post-stage'),old=stage.querySelector('.viewer-layer'),changed=shell.dataset.postId!==p.id||shell.dataset.postVersion!==(p.updatedAt||''),oldHeight=stage.getBoundingClientRect().height,focusAction=shell.contains(document.activeElement)?document.activeElement?.dataset?.action:null;
  const anchor={top:shell.getBoundingClientRect().top,stageTop:stage.getBoundingClientRect().top,scrollY:window.scrollY||0};
+ const immersiveView=state.page==='explore';
  const floor=0; // Each post keeps its natural height, including short text posts.
  shell.classList.toggle('is-exploring',!!path.length);shell.dataset.viewDepth=String(path.length);
  shell.querySelector('.post-navigation').innerHTML=socialViewerNavigation(p,root,path);
  entry.querySelector('.viewer-extras').innerHTML=viewerExtras(root,path);
- if(!changed){stage.style.minHeight=floor+'px';return true}
- shell.dataset.postId=p.id;shell.setAttribute('aria-label','Post by '+postProfile(p).name);
+ if(!changed){stage.style.minHeight=floor+'px';const actions=socialPostActions(p),head=socialPostHeader(p);if(shell.querySelector('.post-actions').innerHTML!==actions)shell.querySelector('.post-actions').innerHTML=actions;if(shell.querySelector('.post-head').innerHTML!==head)shell.querySelector('.post-head').innerHTML=head;if(focusAction)shell.querySelector('[data-action="'+focusAction+'"]')?.focus({preventScroll:true});return true}
+ shell.dataset.postId=p.id;shell.dataset.postVersion=p.updatedAt||'';shell.setAttribute('aria-label','Post by '+postProfile(p).name);
  shell.querySelector('.post-head').innerHTML=socialPostHeader(p);shell.querySelector('.post-actions').innerHTML=socialPostActions(p);shell.querySelector('.viewer-repost').innerHTML=reposts.includes(p.id)?'<span class="repost-label">\u21bb You reposted this</span>':'';
  old.querySelectorAll('video,audio').forEach(media=>media.pause());
  const incoming=document.createElement('div');incoming.className='post-body viewer-layer';incoming.dataset.kind=postContentKind(p);incoming.innerHTML=socialPostBody(p);incoming.style.minHeight=floor+'px';
  const animate=!!transition&&!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches&&typeof incoming.animate==='function';
  if(focusAction)shell.querySelector('[data-action="'+focusAction+'"]')?.focus({preventScroll:true});
- if(!animate){stage.replaceChildren(incoming);stage.style.minHeight=floor+'px';incoming.style.minHeight='';stage.style.height='';followViewerShrink(anchor,oldHeight,incoming.scrollHeight,transition,false);return true}
+ if(!animate){stage.replaceChildren(incoming);stage.style.minHeight=floor+'px';incoming.style.minHeight='';stage.style.height='';if(!immersiveView)followViewerShrink(anchor,oldHeight,incoming.scrollHeight,transition,false);return true}
  stage.style.minHeight='0px';stage.style.height=oldHeight+'px';stage.classList.add('is-transitioning');incoming.classList.add('viewer-incoming');stage.append(incoming);
- const newHeight=Math.max(floor,incoming.scrollHeight),direction=transition==='slide-back'?-1:1;
+ const newHeight=immersiveView?oldHeight:Math.max(floor,incoming.scrollHeight),axis=transition.startsWith('vertical')?'Y':'X',direction=['slide-back','vertical-back'].includes(transition)?-1:1;
  old.setAttribute('aria-hidden','true');old.inert=true;incoming.style.position='absolute';incoming.style.inset='0';
  const options={duration:240,easing:'cubic-bezier(.22,.61,.36,1)'};
- const outgoingMotion=old.animate([{transform:'translateX(0)',opacity:1},{transform:'translateX('+(-100*direction)+'%)',opacity:.5}],options);
- const incomingMotion=incoming.animate([{transform:'translateX('+(100*direction)+'%)',opacity:.5},{transform:'translateX(0)',opacity:1}],options);
- const sizeMotion=Math.abs(newHeight-oldHeight)>.5?stage.animate([{height:oldHeight+'px'},{height:newHeight+'px'}],options):null;stage.style.height=newHeight+'px';followViewerShrink(anchor,oldHeight,newHeight,transition,true);outgoingMotion.finished.catch(()=>{});sizeMotion?.finished.catch(()=>{});
- let finished=false;const finish=()=>{if(finished)return;finished=true;outgoingMotion.cancel();incomingMotion.cancel();sizeMotion?.cancel();old.remove();incoming.classList.remove('viewer-incoming');incoming.style.position='';incoming.style.inset='';stage.style.height='';stage.style.minHeight=floor+'px';incoming.style.minHeight='';stage.classList.remove('is-transitioning');viewerMotions.delete(root)};
+ const outgoingMotion=old.animate([{transform:'translate'+axis+'(0)',opacity:1},{transform:'translate'+axis+'('+(-100*direction)+'%)',opacity:.5}],options);
+ const incomingMotion=incoming.animate([{transform:'translate'+axis+'('+(100*direction)+'%)',opacity:.5},{transform:'translate'+axis+'(0)',opacity:1}],options);
+ const sizeMotion=Math.abs(newHeight-oldHeight)>.5?stage.animate([{height:oldHeight+'px'},{height:newHeight+'px'}],options):null;stage.style.height=newHeight+'px';if(!immersiveView)followViewerShrink(anchor,oldHeight,newHeight,transition,true);outgoingMotion.finished.catch(()=>{});sizeMotion?.finished.catch(()=>{});
+ let finished=false;const finish=()=>{if(finished)return;finished=true;outgoingMotion.cancel();incomingMotion.cancel();sizeMotion?.cancel();old.remove();incoming.classList.remove('viewer-incoming');incoming.style.position='';incoming.style.inset='';stage.style.height='';stage.style.minHeight=floor+'px';incoming.style.minHeight='';stage.classList.remove('is-transitioning');viewerMotions.delete(root);if(immersiveView)exploreMeasureBody()};
  viewerMotions.set(root,finish);incomingMotion.finished.then(finish,finish);return true;
 }
-function renderAnchoredFeed(){const root=rootId(),entry=$('.feed-entry[data-root="'+root+'"]');if(updateFeedViewer(entry,root,state.path,state.transition)){renderRight();state.transition='';return}render()}
+function renderAnchoredFeed(){const root=rootId(),entry=$('.feed-entry[data-root="'+root+'"]');if(updateFeedViewer(entry,root,state.path,state.transition)){renderRight();if(state.page==='explore')exploreUpdateControls();state.transition='';return}render()}
+function homeComposer(){return '<div class="home-compose">'+(authUser?profileAvatar(profile):icon('plus'))+'<button class="compose-prompt" data-page="studio">Share something worth discovering</button><button class="primary compose-open" data-page="studio" aria-label="Create a post">'+icon('plus')+'<span>Create a post</span></button></div>'}
 function renderHome(){
  const tabs='<div class="tabs"><button class="tab '+(state.tab==='for-you'?'active':'')+'" data-tab="for-you">For You</button><button class="tab '+(state.tab==='following'?'active':'')+'" data-tab="following">Following</button></div>';
- const list=roots();
+ const list=roots(),activeRoot=rootId();
  const preview=authUser?'<div class="feed-profile-preview">'+profileCard(profile,true,true)+'</div>':'';
  const status=socialStatus();
  if(!social.ready||social.error)return header('Your feed',tabs)+'<div class="page-content">'+status+'</div>';
  if(!list.length)return header('Your feed',tabs)+preview+'<div class="social-feed-toolbar"><button id="feed-refresh" class="secondary-btn" data-social-action="refresh">Refresh feed</button></div><div class="page-content">'+empty('compass',state.tab==='following'?'Find your people':'Welcome to Zopathy',state.tab==='following'?'Follow people to see their posts here.':'Be the first to share something.',state.tab==='following'?'Explore people':'Create a post',state.tab==='following'?'discover':'studio')+'</div>';
- return header('Your feed',tabs)+preview+'<div class="social-feed-toolbar"><button id="feed-refresh" class="secondary-btn" data-social-action="refresh">'+(social.changed?'Updates available \u00b7 Refresh':'Refresh feed')+'</button></div><div class="timeline">'+list.map((id,index)=>{
-  const path=index===state.rootIndex?state.path:[],p=getPost(path.at(-1)||id);
+ return header('Your feed',tabs)+preview+'<div class="social-feed-toolbar"><button id="feed-refresh" class="secondary-btn" data-social-action="refresh">'+(social.changed?'Updates available \u00b7 Refresh':'Refresh feed')+'</button></div>'+homeComposer()+'<div class="timeline">'+list.map((id,index)=>{
+  const path=id===activeRoot?state.path:[],p=getPost(path.at(-1)||id);
   return '<section class="feed-entry" data-root="'+id+'" aria-label="Feed post '+(index+1)+'"><div class="post-wrap gesture-area">'+postCard(p,{root:id,path})+'<div class="viewer-extras">'+viewerExtras(id,path)+'</div></div></section>';
  }).join('')+'</div><div class="feed-bottom">'+(social.more?'<button class="secondary-btn" data-social-action="more">Load more posts</button>':'<span>You\u2019re caught up</span>')+'</div>';
 }
@@ -93,7 +95,7 @@ let customizeOpen=false;
 function renderStudio(){return socialStudio()}
 function renderStudioBlocks(blocks){return socialBlocks(blocks)}
 function renderRight(){const p=current();$('#related-panel').innerHTML=`<div class="section-head"><h3>Related posts</h3><span>\u2197</span></div><p class="related-intro">${state.page==='home'&&p?`${esc(p.topic)}`:'Explore connected posts.'}</p>${related().slice(0,3).map(e=>`<button class="related-card" data-related="${e.to}"><span class="related-thumbnail">${e.glyph}</span><div><strong>${esc(e.label)}</strong><small>${esc(getPost(e.to)?.topic)} \u00b7 ${esc(e.type)}</small></div><span class="arrow">\u2192</span></button>`).join('')||'<p class="related-intro">You reached the end of this trail. Jump back a step, or see what\u2019s next in your feed.</p>'}`}
-function render(){for(const root of [...viewerMotions.keys()])finishViewerMotion(root);nav();const pages={home:renderHome,discover:renderDiscover,bookmarks:renderBookmarks,history:renderHistory,studio:renderStudio,profile:renderProfile,member:socialMemberPage,groups:renderGroups,group:renderGroup,friends:renderFriends,messages:renderMessages,settings:renderSettings,account:renderAccount};$('#main').innerHTML=(pages[state.page]||renderHome)();renderRight();renderSocialPeople();bindProfileCanvases();state.transition='';if(state.page==='home')bindGestures()}
+function render(){const restoreHome=browsePrepareRender();document.documentElement.dataset.destination=state.page;for(const root of [...viewerMotions.keys()])finishViewerMotion(root);nav();const existingExplore=state.page==='explore'&&$('[data-explore-viewer]');if(existingExplore&&social.ready&&!social.error&&current()){existingExplore.dataset.root=rootId();renderAnchoredFeed();return}const pages={home:renderHome,explore:renderExplore,discover:renderDiscover,bookmarks:renderBookmarks,history:renderHistory,studio:renderStudio,profile:renderProfile,member:socialMemberPage,groups:renderGroups,group:renderGroup,friends:renderFriends,messages:renderMessages,settings:renderSettings,account:renderAccount};$('#main').innerHTML=(pages[state.page]||renderHome)();renderRight();renderSocialPeople();bindProfileCanvases();state.transition='';if(state.page==='home')bindGestures();if(state.page==='explore')bindExploreGestures();if(restoreHome)browseRestoreHomePosition();browseAnimateDestination()}
 function openDialog(html){$('#dialog-content').innerHTML=html;$('#dialog').showModal()}
 function closeDialog(){if(typeof profileStudio!=='undefined'){clearTimeout(profileStudio.timer);profileStudio.active=false;profileStudio.past=[];profileStudio.future=[];}closeProfileCrop();social.commentPost=null;social.authorId=null;$('#dialog').close();$('#dialog').classList.remove('profile-editor-dialog','profile-studio-dialog');profileDraft=null}
 function directionDialog(){const options=related();openDialog(`<h2>Explore related posts</h2><p class="intro">Choose a topic, or press \u2192 to open the first connection.</p>${options.length?options.map(e=>`<button class="related-card" data-direction="${e.to}"><span class="related-thumbnail">${e.glyph}</span><div><strong>${esc(getPost(e.to)?.topic)}</strong><small>${esc(e.label)}</small><small>${esc(e.type)}</small></div><span class="arrow">\u2192</span></button>`).join(''):'<p class="intro">This trail ends here. Back up a step or try the next feed post.</p>'}`)}
@@ -105,12 +107,12 @@ let chosenTheme=null;
 document.addEventListener('click',e=>{const el=e.target.closest('button,a');if(!el)return;const d=el.dataset;if(d.authMode){openAccount(d.authMode);return}if(d.authAction){handleAuthAction(d.authAction);return}if(['studio','profile'].includes(d.page)&&!requireAccount())return;if(d.siteTheme){setSiteTheme(d.siteTheme);return}const feedEntry=el.closest('.feed-entry');if(feedEntry)activateFeedRoot(feedEntry.dataset.root);if(d.cropAction){handleCropAction(d.cropAction);return}if(d.profileCrop){if(!requireAccount())return;if(!profileDraft)openProfileEditor();openProfileCrop(d.profileCrop);return}if(handleProfileClick(el,d))return;
 if(d.action==='close-group-editor'){closeDialog();return}
 if(el.closest('.dialog-close')){if(profileCrop)closeProfileCrop();else if(!profileStudio.saving)closeDialog();return}
-if(d.page){e.preventDefault();closeDialog();if(d.page!=='studio')groupLeaveURL();state.page=d.page;if(d.page==='home')state.focusPost=null;state.search='';$('#search').value='';render();window.scrollTo(0,0);if(d.page==='groups')loadGroupDirectory();if(['friends','messages'].includes(d.page)){loadCommunity();if(d.page==='messages'&&community.target)loadDMThread();}return}
-if(d.tab){remember();state.tab=d.tab;state.focusPost=null;state.rootIndex=0;state.path=[];state.trail=false;render();return}
+if(d.page){e.preventDefault();browsing.explicit=true;closeDialog();if(d.page!=='studio')groupLeaveURL();state.page=d.page;state.search='';$('#search').value='';render();if(d.page!=='home'||!browsing.homePosition)window.scrollTo(0,0);if(d.page==='groups')loadGroupDirectory();if(['friends','messages'].includes(d.page)){loadCommunity();if(d.page==='messages'&&community.target)loadDMThread();}return}
+if(d.tab){browsing.explicit=true;browseSelectSource(d.tab);render();return}
 if(d.open){closeDialog();openRoot(d.open);return}
-if(d.related){if(state.page!=='home'){state.page='home';state.path=[]}goDeeper(d.related);return}
+if(d.related){if(!['home','explore'].includes(state.page)){state.page='home';state.path=[]}goDeeper(d.related);return}
 if(d.direction){closeDialog();goDeeper(d.direction);return}
-if(d.trail!==undefined){state.path=state.path.slice(0,Number(d.trail));state.why=false;state.transition=state.path.length?'slide-back':'';renderAnchoredFeed();return}
+if(d.trail!==undefined){browseInvalidate();state.path=state.path.slice(0,Number(d.trail));state.why=false;state.transition=state.path.length?'slide-back':'';renderAnchoredFeed();return}
 if(d.resume){resume(d.resume);return}
 if(d.deleteHistory){socialDeleteHistory(d.deleteHistory);return}
 if(d.author){if(ownPost(getPost(d.author))){closeDialog();state.page='profile';render()}else authorDialog(d.author);return}
@@ -122,14 +124,15 @@ if(d.blockDelete!==undefined){draft.blocks.splice(Number(d.blockDelete),1);rende
 const action=d.action;if(!action)return;
 if(['like','bookmark','repost'].includes(action)){socialToggle(action,d.id);return}
 if(['publish-draft','edit-profile'].includes(action)&&!requireAccount())return;
+if(action==='browse-menu')browseMenu();
 if(action==='comments')showComments(d.id);
 if(action==='directions')directionDialog();
 if(action==='back')back();
 if(action==='return-main')returnMainFeed();
-if(action==='next')moveFeed(1);
+if(action==='next'){if(state.page==='explore')exploreAdvance(1);else moveFeed(1);}
 if(action==='trail'){state.trail=!state.trail;renderAnchoredFeed()}
 if(action==='why'){state.why=!state.why;renderAnchoredFeed()}
-if(action==='resume-path'){state.path=[...(paths[rootId()]||[])].filter(getPost);state.trail=true;renderAnchoredFeed()}
+if(action==='resume-path'){browseInvalidate();state.path=[...(paths[rootId()]||[])].filter(getPost);state.trail=true;renderAnchoredFeed()}
 if(action==='edit-profile')editProfile();if(action==='cancel-profile')closeDialog();
 if(action==='clear-history'){socialClearHistory();return}
 if(action==='preview-draft'){openDialog(`<h2>${esc(draft.title||'Untitled creation')}</h2><p class="intro">Post preview</p>${draft.text?`<p class="preview-text">${esc(draft.text)}</p>`:''}${renderStudioBlocks(draft.blocks)}`)}
@@ -139,7 +142,7 @@ document.addEventListener('input',e=>{const d=e.target.dataset;if(e.target.id===
 document.addEventListener('change',e=>{if(e.target.id==='save-history'){socialSavePreferences({saveHistory:e.target.checked})}if(e.target.dataset.blockImage!==undefined){draft.blocks[Number(e.target.dataset.blockImage)].image=e.target.value;render()}});
 document.addEventListener('submit',e=>{if(e.target.id==='comment-form'){e.preventDefault();socialReply(e.target)}if(e.target.id==='profile-form'){e.preventDefault();saveProfileDraft(e.target)}});
 $('#search').addEventListener('input',e=>{scheduleSocialSearch(e.target.value)});
-$('.logo').addEventListener('click',e=>{e.preventDefault();groupLeaveURL();state.page='home';render()});
+$('.logo').addEventListener('click',e=>{e.preventDefault();groupLeaveURL();browsing.explicit=true;state.page='home';render()});
 document.addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT|VIDEO|AUDIO/.test(e.target.tagName)||e.target.isContentEditable)return;if(e.key==='/'&&!$('#dialog').open){e.preventDefault();if(getComputedStyle($('.rightbar')).display!=='none')$('#search').focus();else{state.page='discover';render()}return}if($('#dialog').open){if(e.key==='ArrowRight'&&$('#dialog-content').innerHTML.includes('data-direction')){e.preventDefault();closeDialog();goDeeper()}return}if(state.page!=='home')return;if(['ArrowRight','ArrowLeft'].includes(e.key)){e.preventDefault();const root=visibleFeedRoot();if(root)activateFeedRoot(root);if(e.key==='ArrowRight')goDeeper();if(e.key==='ArrowLeft')back()}});
 let touchStart=null;
 function bindGestures(){
