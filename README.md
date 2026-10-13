@@ -50,3 +50,9 @@ Explore follows member-created connections and offers related posts based on a s
 Horizontal exploration updates only the active post viewer. Author details, navigation controls, social actions, and neighboring feed entries retain their containers while content slides for 240 ms. Text posts use a compact, top-aligned reading layout and the viewer smoothly shrinks to their natural height; photos, videos, audio, and custom sections retain appropriate layouts. A relationship label shows shared topics or member connections. Back retraces one step with a reverse slide, including the final step to the original post; Main feed returns to the root immediately. Vertical scrolling remains native. Reduced-motion preferences disable the slide, and departing media is paused. Custom layouts can grow naturally rather than being forced into a fixed card height.
 
 `responsive-check.html` embeds the actual public site in a narrow viewport for responsive QA. It has no sample runtime or additional dependencies.
+
+## Community sidebar and handles
+
+The sidebar recommends up to five people you do not follow. Trending groups topics in recently loaded community posts from the last seven days, ranking post volume, distinct authors, and likes/comments/reposts. Select a trend to search shared posts. This is a lightweight feed-based ranking, not a global analytics service.
+
+Customize profile → About you lets members choose a unique, lowercase handle (3–24 letters, numbers, or underscores). Supabase enforces uniqueness and owner-only updates. New accounts use short generated defaults; existing custom handles are preserved. Run the handle update migration for an existing deployment.

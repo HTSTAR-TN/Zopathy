@@ -21,7 +21,7 @@ function openAccount(mode='signin',message=''){authMode=mode;authNotice=message;
 function requireAccount(){if(authUser)return true;if(!authReady&&authConfigured()&&authTransportSecure()){toast('Your account is reconnecting. Please wait or try again.');return false}openAccount('signin','Sign in or create an account to continue.');return false}
 function setAuthMessage(message,error=false){authNotice=message;const el=$('#auth-message');if(el){el.textContent=message;el.classList.toggle('auth-warning',error)}}
 async function applyAccountUser(user){
- const previousId=authUser?.id;const generation=++authGeneration;authUser=user||null;accountUsername=authUser?'z_'+authUser.id.replaceAll('-','').slice(0,20):'you';
+ const previousId=authUser?.id;const generation=++authGeneration;authUser=user||null;accountUsername=authUser?'z_'+authUser.id.replaceAll('-','').slice(0,8):'you';
  if(previousId!==authUser?.id){draft={title:'',text:'',blocks:[]};closeDialog();}
  resetSocial();prefs={saveHistory:true,siteTheme:'red',...read('preferences',{})};state.focusPost=null;state.rootIndex=0;state.path=[];state.trail=false;state.why=false;
  profile=authUser?normalizeProfile({...profileDefaults,name:authUser.user_metadata?.display_name||'Explorer',bio:'',status:''}):normalizeProfile(profileDefaults);
@@ -33,13 +33,15 @@ async function applyAccountUser(user){
  }
  if(generation===authGeneration){await loadSocial();if(generation===authGeneration)await socialLoadDeepLink()}
 }
-async function persistAccountProfile(candidate){
+async function persistAccountProfile(candidate,username=accountUsername){
  if(!authUser||!authClient)throw Error('Sign in to save your profile.');
+ username=String(username).trim().replace(/^@/,'').toLowerCase();if(!/^[a-z0-9_]{3,24}$/.test(username))throw Error('Use 3–24 letters, numbers, or underscores for your handle.');
  const {name,bio,status,...appearance}=normalizeProfile(candidate),owner=authUser.id;
- const {data,error}=await authClient.from('zopathy_profiles').update({display_name:name,bio,status,appearance}).eq('id',owner).select('id').single();
+ const {data,error}=await authClient.from('zopathy_profiles').update({username,display_name:name,bio,status,appearance}).eq('id',owner).select('id').single();
+ if(error?.code==='23505')throw Error('That handle is already taken. Try another one.');
  if(error||!data)throw Error('Your profile could not be saved. Please try again.');
  if(authUser?.id!==owner)throw Error('Your account changed. Sign in again before saving.');
- const row=social.profiles.get(owner);if(row)social.profiles.set(owner,{...row,display_name:name,bio,status,appearance});for(const p of customPosts)if(p.user===owner)p.author={...row,display_name:name,bio,status,appearance};
+ accountUsername=username;const row=social.profiles.get(owner);if(row)social.profiles.set(owner,{...row,username,display_name:name,bio,status,appearance});for(const p of customPosts)if(p.user===owner){p.author={...row,username,display_name:name,bio,status,appearance};p.handle=username;p.name=name;}
 }
 function friendlyAuthError(error){
  const code=error?.code||'';
