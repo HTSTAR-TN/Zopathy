@@ -56,3 +56,15 @@ Horizontal exploration updates only the active post viewer. Author details, navi
 The sidebar recommends up to five people you do not follow. Trending groups topics in recently loaded community posts from the last seven days, ranking post volume, distinct authors, and likes/comments/reposts. Select a trend to search shared posts. This is a lightweight feed-based ranking, not a global analytics service.
 
 Customize profile → About you lets members choose a unique, lowercase handle (3–24 letters, numbers, or underscores). Supabase enforces uniqueness and owner-only updates. New accounts use short generated defaults; existing custom handles are preserved. Run the handle update migration for an existing deployment.
+
+## Personal Profile Designer
+
+Profiles now render in a dedicated canvas iframe, with a script-disabled sandbox and a restrictive Content Security Policy. The site header, navigation, authentication, Follow, Customize profile, and Simplified view controls remain outside it. The owner and visitors render the same saved appearance. Feed cards and rabbit-hole navigation retain their existing styling.
+
+Customize profile opens a private draft with five editable templates: Classic Zopathy, Minimalist, Retro, Modern, and Creative. Controls cover page/panel/text/accent/link/border/hover colors, gradients and optimized backgrounds, local font families and typography, borders, shadows, transparency, spacing, width, post columns, and hover effects. Desktop and mobile previews use the actual profile renderer. Existing avatars, banners, name colors, identity fields, and crop tools are retained. Save profile persists the draft to Supabase; Discard leaves the published profile alone. Reset canvas resets canvas settings while retaining identity and uploaded images.
+
+Advanced CSS is limited to the isolated canvas, with an 8,000-character/100-rule limit. External URLs, imports, font loading, HTML, JavaScript, CSS escapes, and executable constructs are rejected. Only @media, @supports, and @keyframes are supported. Browser CSS parsing supplies the final graceful fallback for unsupported declarations. Animations run at most three iterations with bounded durations; reduced-motion preferences disable them. The editor includes supported selectors and examples, and a visitor can always choose Simplified view outside the canvas.
+
+Version 1 design settings are stored as structured `appearance.design` data in the existing profile record. Existing appearance fields remain intact. Run `Zopathy-Profile-Designer-Validation.sql` for an existing database; the account schema includes the same validation for a new setup. Owner-only RLS remains unchanged. Background uploads are decoded and converted to WebP, with a maximum 1,600-pixel edge and 500 KB data URL; image inputs are limited to 20 MB/60 megapixels.
+
+This release includes visual customization and isolated CSS layout freedom. A drag-and-drop section editor, dedicated per-device section ordering, undo/redo, and syntax highlighting are not implemented yet. No widgets or arbitrary HTML/JavaScript are supported.
