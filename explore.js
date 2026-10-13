@@ -5,7 +5,7 @@ function openExplore(id){
  if(id&&!getPost(id))return;
  browseSetDestination('explore');
  if(id&&id!==currentId()){
-  remember();browseInvalidate();state.focusPost=id;state.rootPostId=id;state.rootIndex=roots().indexOf(id);
+  remember();browseInvalidate();if(!roots().includes(id))state.focusPost=id;state.rootPostId=id;state.rootIndex=roots().indexOf(id);
   state.path=[];state.trail=false;state.why=false;
  }
  render();window.scrollTo(0,0);
