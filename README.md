@@ -90,3 +90,12 @@ The Profile Designer now opens a dedicated full-viewport Profile Studio. Profile
 The preview remains the existing script-disabled canvas. Parent-side selection highlights the banner, avatar, text, or sections and opens the corresponding inspector. Custom CSS stays inside the canvas and never styles Studio. Desktop/mobile preview switching, save, discard, individual resets, canvas reset, and default-appearance restoration are supported. Restoring appearance retains identity and images. Draft undo/redo retains up to 24 snapshots, coalescing inputs over 250 ms; text fields retain native typing undo. Unsaved changes are clearly labeled, and navigation away warns about the private draft. Expensive preview rendering remains debounced at 100 ms.
 
 Mobile uses a compact preview above a horizontally scrollable category selector and inspector. This release does not add widgets or a drag-and-drop positioning engine: section selection opens the existing spacing/width/column controls, and isolated CSS remains available for custom positioning.
+
+
+## Friends and direct messages
+
+Friendships are mutual accepted connections, separate from follows. Member profiles have Add friend and Message controls. Friends shows incoming requests, accepted friends, and sent requests, with accept/decline/cancel/unfriend actions. Unfriending preserves existing messages and follows.
+
+DMs are open by default. Messages > Who can message you? lets a member enable Only friends can message me. The backend checks the recipient's preference for every new message. Only the sender and recipient can read a conversation, including after unfriending. Requests and message preferences are private. Text messages support 4,000 characters, 50-message history pages, retry-safe UUIDs, memory-only drafts, and a five-second refresh while Messages is open and the tab is visible. No messages or drafts are stored as browser-local social fallback. Messages are stored in Supabase and are not end-to-end encrypted. Demo accounts cannot receive messages or friend requests.
+
+Install Zopathy-Friends-Messages-Schema.sql once after the existing Account and Social schemas. The live migration is installed. This release does not include attachments, typing indicators, push notifications, message editing/deletion, or group chat.
