@@ -20,7 +20,7 @@ function current(){return getPost(currentId())}
 function related(id=currentId()){return socialRelated(id)}
 function remember(){socialRemember()}
 function goDeeper(to){socialExplore(to)}
-function back(){if(!state.path.length)return;state.path.pop();state.why=false;state.transition=state.path.length?'slide-back':'';renderAnchoredFeed()}
+function back(){if(!state.path.length)return;state.path.pop();state.why=false;state.transition='slide-back';renderAnchoredFeed()}
 function returnMainFeed(){if(!state.path.length)return;state.path=[];state.trail=false;state.why=false;state.transition='';renderAnchoredFeed()}
 function moveFeed(step){const list=roots();if(!list.length)return;const next=Math.max(0,Math.min(list.length-1,state.rootIndex+step));activateFeedRoot(list[next]);render();$('.feed-entry[data-root="'+rootId()+'"]')?.scrollIntoView({behavior:'smooth',block:'start'})}
 function openRoot(id){state.focusPost=id;state.tab='for-you';const list=roots();const idx=list.indexOf(id);state.rootIndex=idx<0?0:idx;state.path=idx<0?[id]:[];state.page='home';state.trail=false;state.why=false;state.transition='slide-next';render();$('.feed-entry[data-root="'+rootId()+'"]')?.scrollIntoView({behavior:'smooth',block:'start'})}
@@ -49,7 +49,7 @@ function updateFeedViewer(entry,root,path,transition=''){
  shell.querySelector('.post-head').innerHTML=socialPostHeader(p);shell.querySelector('.post-actions').innerHTML=socialPostActions(p);shell.querySelector('.viewer-repost').innerHTML=reposts.includes(p.id)?'<span class="repost-label">↻ You reposted this</span>':'';
  old.querySelectorAll('video,audio').forEach(media=>media.pause());
  const incoming=document.createElement('div');incoming.className='post-body viewer-layer';incoming.dataset.kind=postContentKind(p);incoming.innerHTML=socialPostBody(p);incoming.style.minHeight=floor+'px';
- const animate=!!transition&&!!path.length&&!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches&&typeof incoming.animate==='function';
+ const animate=!!transition&&!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches&&typeof incoming.animate==='function';
  if(focusAction)shell.querySelector('[data-action="'+focusAction+'"]')?.focus({preventScroll:true});
  if(!animate){stage.replaceChildren(incoming);stage.style.minHeight=floor+'px';incoming.style.minHeight='';stage.style.height='';return true}
  stage.style.minHeight='0px';stage.style.height=oldHeight+'px';stage.classList.add('is-transitioning');incoming.classList.add('viewer-incoming');stage.append(incoming);
