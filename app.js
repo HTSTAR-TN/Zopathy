@@ -20,7 +20,8 @@ function current(){return getPost(currentId())}
 function related(id=currentId()){return socialRelated(id)}
 function remember(){socialRemember()}
 function goDeeper(to){socialExplore(to)}
-function back(){if(!state.path.length)return;state.path.pop();state.why=false;state.transition='slide-back';renderAnchoredFeed()}
+function back(){if(!state.path.length)return;state.path.pop();state.why=false;state.transition=state.path.length?'slide-back':'';renderAnchoredFeed()}
+function returnMainFeed(){if(!state.path.length)return;state.path=[];state.trail=false;state.why=false;state.transition='';renderAnchoredFeed()}
 function moveFeed(step){const list=roots();if(!list.length)return;const next=Math.max(0,Math.min(list.length-1,state.rootIndex+step));activateFeedRoot(list[next]);render();$('.feed-entry[data-root="'+rootId()+'"]')?.scrollIntoView({behavior:'smooth',block:'start'})}
 function openRoot(id){state.focusPost=id;state.tab='for-you';const list=roots();const idx=list.indexOf(id);state.rootIndex=idx<0?0:idx;state.path=idx<0?[id]:[];state.page='home';state.trail=false;state.why=false;state.transition='slide-next';render();$('.feed-entry[data-root="'+rootId()+'"]')?.scrollIntoView({behavior:'smooth',block:'start'})}
 function resume(id){const h=history.find(h=>h.id===id);if(!h)return;openRoot(h.root);state.path=h.path.filter(id=>getPost(id));state.trail=true;render()}
@@ -28,11 +29,42 @@ function toast(message){$('#toast').textContent=message;$('#toast').classList.ad
 const navigation=[['home','home','Home'],['discover','compass','Explore'],['bookmarks','bookmark','Bookmarks'],['history','history','History'],['studio','plus','Create a post'],['profile','user','Profile'],['settings','settings','Settings']];
 function nav(){applySiteTheme(); $('#main-nav').innerHTML=navigation.map(([page,ic,label])=>`<button class="nav-item ${page==='studio'?'composer-nav':''} ${state.page===page?'active':''}" data-page="${page}" ${state.page===page?'aria-current="page"':''}>${icon(ic)}<span>${label}</span></button>`).join('');accountSidebar();document.documentElement.style.setProperty('--profile-user-accent',profileAccent(profile));document.querySelectorAll('[data-follow]').forEach(b=>b.textContent=following.includes(b.dataset.follow)?'Following':'Follow')}
 function header(title,tabs=''){const next=prefs.siteTheme==='red'?'teal':'red';return '<header class="main-header"><div><h1>'+esc(title)+'</h1>'+tabs+'</div><button class="site-theme-toggle" data-site-theme="'+next+'" aria-label="Switch to '+next+' theme" title="Switch to '+next+' theme"><span class="theme-toggle-dot"></span>'+ (prefs.siteTheme==='red'?'Red':'Teal')+' <span>⇄</span></button></header>'}
-function postCard(p){return socialPostCard(p)}
+function postCard(p,options){return socialPostCard(p,options)}
 function trailHTML(path=state.path,root=rootId(),interactive=true){return `<div class="trail" aria-label="Exploration trail">${[root,...path].map((id,i)=>`${i?'<span>→</span>':''}<button ${interactive?`data-trail="${i}"`:''}>${esc(getPost(id)?.topic||'Post')}</button>`).join('')}</div>`}
-function activateFeedRoot(id){const index=roots().indexOf(id);if(index<0||index===state.rootIndex)return;remember();state.rootIndex=index;state.path=[];state.trail=false;state.why=false}
+function activateFeedRoot(id){const index=roots().indexOf(id);if(index<0||index===state.rootIndex)return;const previous=rootId(),entry=$('.feed-entry[data-root="'+id+'"]'),before=entry?.getBoundingClientRect().top;remember();state.rootIndex=index;state.path=[];state.trail=false;state.why=false;updateFeedViewer($('.feed-entry[data-root="'+previous+'"]'),previous,[]);const after=entry?.getBoundingClientRect().top;if(Number.isFinite(before)&&Number.isFinite(after)&&before!==after)window.scrollBy(0,after-before)}
 function visibleFeedRoot(){const entries=[...document.querySelectorAll('.feed-entry')];return entries.filter(el=>{const r=el.getBoundingClientRect();return r.bottom>120&&r.top<window.innerHeight}).sort((a,b)=>Math.abs(a.getBoundingClientRect().top-100)-Math.abs(b.getBoundingClientRect().top-100))[0]?.dataset.root}
-function renderAnchoredFeed(){const id=rootId(),selector='.feed-entry[data-root="'+id+'"]',before=$(selector)?.getBoundingClientRect().top;render();const after=$(selector)?.getBoundingClientRect().top;if(Number.isFinite(before)&&Number.isFinite(after))window.scrollBy(0,after-before)}
+const viewerFloors=new Map();
+const viewerMotions=new Map();
+function viewerExtras(root,path){const savedPath=paths[root],relationship=path.length?postRelationship(path.length===1?root:path.at(-2),path.at(-1)):null;return (path.length&&state.why&&relationship?'<p class="viewer-explanation">'+esc(relationship.reason)+'</p>':'')+ (path.length&&state.trail?trailHTML(path,root):'')+(path.length?'<button class="viewer-trail-toggle" data-action="trail" aria-expanded="'+state.trail+'">'+icon('history')+' '+(state.trail?'Hide trail':'View trail')+'</button>':savedPath?.length?'<div class="connection"><button data-action="resume-path">'+icon('history')+' Resume your rabbit hole · '+savedPath.length+' deep '+icon('arrow')+'</button></div>':'')}
+function finishViewerMotion(root){const finish=viewerMotions.get(root);if(finish)finish()}
+function updateFeedViewer(entry,root,path,transition=''){
+ const shell=entry?.querySelector?.('.post-viewer');if(!shell)return false;
+ finishViewerMotion(root);const p=getPost(path.at(-1)||root);if(!p)return false;
+ const stage=shell.querySelector('.post-stage'),old=stage.querySelector('.viewer-layer'),changed=shell.dataset.postId!==p.id,oldHeight=stage.getBoundingClientRect().height,focusAction=shell.contains(document.activeElement)?document.activeElement?.dataset?.action:null;
+ if(path.length&&!viewerFloors.has(root)){const max=Math.max(280,Math.min(700,window.innerHeight*.72));viewerFloors.set(root,Math.min(max,Math.max(260,stage.getBoundingClientRect().height)))}
+ const floor=path.length?(viewerFloors.get(root)||260):0;if(!path.length)viewerFloors.delete(root);
+ shell.classList.toggle('is-exploring',!!path.length);shell.dataset.viewDepth=String(path.length);
+ shell.querySelector('.post-navigation').innerHTML=socialViewerNavigation(p,root,path);
+ entry.querySelector('.viewer-extras').innerHTML=viewerExtras(root,path);
+ if(!changed){stage.style.minHeight=floor+'px';return true}
+ shell.dataset.postId=p.id;shell.setAttribute('aria-label','Post by '+postProfile(p).name);
+ shell.querySelector('.post-head').innerHTML=socialPostHeader(p);shell.querySelector('.post-actions').innerHTML=socialPostActions(p);shell.querySelector('.viewer-repost').innerHTML=reposts.includes(p.id)?'<span class="repost-label">↻ You reposted this</span>':'';
+ old.querySelectorAll('video,audio').forEach(media=>media.pause());
+ const incoming=document.createElement('div');incoming.className='post-body viewer-layer';incoming.dataset.kind=postContentKind(p);incoming.innerHTML=socialPostBody(p);incoming.style.minHeight=floor+'px';
+ const animate=!!transition&&!!path.length&&!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches&&typeof incoming.animate==='function';
+ if(focusAction)shell.querySelector('[data-action="'+focusAction+'"]')?.focus({preventScroll:true});
+ if(!animate){stage.replaceChildren(incoming);stage.style.minHeight=floor+'px';incoming.style.minHeight='';stage.style.height='';return true}
+ stage.style.minHeight='0px';stage.style.height=oldHeight+'px';stage.classList.add('is-transitioning');incoming.classList.add('viewer-incoming');stage.append(incoming);
+ const newHeight=Math.max(floor,incoming.scrollHeight),direction=transition==='slide-back'?-1:1;
+ old.setAttribute('aria-hidden','true');old.inert=true;incoming.style.position='absolute';incoming.style.inset='0';
+ const options={duration:240,easing:'cubic-bezier(.22,.61,.36,1)'};
+ const outgoingMotion=old.animate([{transform:'translateX(0)',opacity:1},{transform:'translateX('+(-100*direction)+'%)',opacity:.5}],options);
+ const incomingMotion=incoming.animate([{transform:'translateX('+(100*direction)+'%)',opacity:.5},{transform:'translateX(0)',opacity:1}],options);
+ const sizeMotion=Math.abs(newHeight-oldHeight)>.5?stage.animate([{height:oldHeight+'px'},{height:newHeight+'px'}],options):null;stage.style.height=newHeight+'px';
+ let finished=false;const finish=()=>{if(finished)return;finished=true;outgoingMotion.cancel();incomingMotion.cancel();sizeMotion?.cancel();old.remove();incoming.classList.remove('viewer-incoming');incoming.style.position='';incoming.style.inset='';stage.style.height='';stage.style.minHeight=floor+'px';incoming.style.minHeight='';stage.classList.remove('is-transitioning');viewerMotions.delete(root)};
+ viewerMotions.set(root,finish);incomingMotion.finished.then(finish,finish);return true;
+}
+function renderAnchoredFeed(){const root=rootId(),entry=$('.feed-entry[data-root="'+root+'"]');if(updateFeedViewer(entry,root,state.path,state.transition)){renderRight();state.transition='';return}render()}
 function renderHome(){
  const tabs='<div class="tabs"><button class="tab '+(state.tab==='for-you'?'active':'')+'" data-tab="for-you">For You</button><button class="tab '+(state.tab==='following'?'active':'')+'" data-tab="following">Following</button></div>';
  const list=roots();
@@ -41,13 +73,8 @@ function renderHome(){
  if(!social.ready||social.error)return header('Your feed',tabs)+'<div class="page-content">'+status+'</div>';
  if(!list.length)return header('Your feed',tabs)+preview+'<div class="social-feed-toolbar"><button id="feed-refresh" class="secondary-btn" data-social-action="refresh">Refresh feed</button></div><div class="page-content">'+empty('compass',state.tab==='following'?'Find your people':'Welcome to Zopathy',state.tab==='following'?'Follow people to see their posts here.':'Be the first to share something.',state.tab==='following'?'Explore people':'Create a post',state.tab==='following'?'discover':'studio')+'</div>';
  return header('Your feed',tabs)+preview+'<div class="social-feed-toolbar"><button id="feed-refresh" class="secondary-btn" data-social-action="refresh">'+(social.changed?'Updates available · Refresh':'Refresh feed')+'</button></div><div class="timeline">'+list.map((id,index)=>{
-  const active=index===state.rootIndex,path=active?state.path:[],p=getPost(path.at(-1)||id),connection=path.length?(edges[path.length===1?id:path.at(-2)]||[]).find(e=>e.to===p.id):null,savedPath=paths[id];
-  const transition=state.transition;if(!active)state.transition='';const card=postCard(p);state.transition=transition;
-  return '<section class="feed-entry" data-root="'+id+'" aria-label="Feed post '+(index+1)+'"><div class="post-wrap gesture-area">'+
-   (path.length?'<div class="timeline-exploring"><button class="trail-toggle" data-action="trail" aria-expanded="'+state.trail+'">'+icon('compass')+' Exploring <strong>↳ '+path.length+' deep</strong> '+(state.trail?'⌃':'⌄')+'</button><button class="secondary-btn" data-action="back">'+icon('arrow','style="transform:rotate(180deg)"')+' Back</button></div>':'')+
-   (active&&state.trail&&path.length?trailHTML(): '')+card+
-   (connection?'<div class="connection"><button data-action="why" aria-expanded="'+state.why+'">'+icon('spark')+' '+(connection.type==='Unexpected discovery'?'An unexpected detour · ':'')+'Why this post? '+(state.why?'−':'+')+'</button>'+(state.why?'<p><strong>'+esc(connection.type)+'</strong><br>'+esc(connection.reason)+'<br><span style="font-size:9px;color:var(--muted)">Connected by a member or suggested by a shared creator or topic.</span></p>':'')+'</div>':savedPath?.length?'<div class="connection"><button data-action="resume-path">'+icon('history')+' Resume your rabbit hole · '+savedPath.length+' deep '+icon('arrow')+'</button></div>':'')+
-   '</div></section>';
+  const path=index===state.rootIndex?state.path:[],p=getPost(path.at(-1)||id);
+  return '<section class="feed-entry" data-root="'+id+'" aria-label="Feed post '+(index+1)+'"><div class="post-wrap gesture-area">'+postCard(p,{root:id,path,floor:path.length?(viewerFloors.get(id)||260):0})+'<div class="viewer-extras">'+viewerExtras(id,path)+'</div></div></section>';
  }).join('')+'</div><div class="feed-bottom">'+(social.more?'<button class="secondary-btn" data-social-action="more">Load more posts</button>':'<span>You’re caught up</span>')+'</div>';
 }
 function empty(ic,title,text,cta,page){return `<div class="empty-state">${icon(ic)}<h2>${esc(title)}</h2><p>${esc(text)}</p>${cta?`<button class="primary" data-page="${page}">${esc(cta)} ${icon('arrow')}</button>`:''}</div>`}
@@ -62,7 +89,7 @@ let customizeOpen=false;
 function renderStudio(){return socialStudio()}
 function renderStudioBlocks(blocks){return socialBlocks(blocks)}
 function renderRight(){const p=current();$('#related-panel').innerHTML=`<div class="section-head"><h3>Related posts</h3><span>↗</span></div><p class="related-intro">${state.page==='home'&&p?`${esc(p.topic)}`:'Explore connected posts.'}</p>${related().slice(0,3).map(e=>`<button class="related-card" data-related="${e.to}"><span class="related-thumbnail">${e.glyph}</span><div><strong>${esc(e.label)}</strong><small>${esc(getPost(e.to)?.topic)} · ${esc(e.type)}</small></div><span class="arrow">→</span></button>`).join('')||'<p class="related-intro">You reached the end of this trail. Jump back a step, or see what’s next in your feed.</p>'}`}
-function render(){nav();const pages={home:renderHome,discover:renderDiscover,bookmarks:renderBookmarks,history:renderHistory,studio:renderStudio,profile:renderProfile,settings:renderSettings,account:renderAccount};$('#main').innerHTML=(pages[state.page]||renderHome)();renderRight();renderSocialPeople();state.transition='';if(state.page==='home')bindGestures()}
+function render(){for(const root of [...viewerMotions.keys()])finishViewerMotion(root);nav();const pages={home:renderHome,discover:renderDiscover,bookmarks:renderBookmarks,history:renderHistory,studio:renderStudio,profile:renderProfile,settings:renderSettings,account:renderAccount};$('#main').innerHTML=(pages[state.page]||renderHome)();renderRight();renderSocialPeople();state.transition='';if(state.page==='home')bindGestures()}
 function openDialog(html){$('#dialog-content').innerHTML=html;$('#dialog').showModal()}
 function closeDialog(){closeProfileCrop();social.commentPost=null;social.authorId=null;$('#dialog').close();$('#dialog').classList.remove('profile-editor-dialog');profileDraft=null}
 function directionDialog(){const options=related();openDialog(`<h2>Explore related posts</h2><p class="intro">Choose a topic, or press → to open the first connection.</p>${options.length?options.map(e=>`<button class="related-card" data-direction="${e.to}"><span class="related-thumbnail">${e.glyph}</span><div><strong>${esc(getPost(e.to)?.topic)}</strong><small>${esc(e.label)}</small><small>${esc(e.type)}</small></div><span class="arrow">→</span></button>`).join(''):'<p class="intro">This trail ends here. Back up a step or try the next feed post.</p>'}`)}
@@ -78,7 +105,7 @@ if(d.tab){remember();state.tab=d.tab;state.focusPost=null;state.rootIndex=0;stat
 if(d.open){closeDialog();openRoot(d.open);return}
 if(d.related){if(state.page!=='home'){state.page='home';state.path=[]}goDeeper(d.related);return}
 if(d.direction){closeDialog();goDeeper(d.direction);return}
-if(d.trail!==undefined){state.path=state.path.slice(0,Number(d.trail));state.why=false;render();return}
+if(d.trail!==undefined){state.path=state.path.slice(0,Number(d.trail));state.why=false;state.transition=state.path.length?'slide-back':'';renderAnchoredFeed();return}
 if(d.resume){resume(d.resume);return}
 if(d.deleteHistory){socialDeleteHistory(d.deleteHistory);return}
 if(d.author){if(ownPost(getPost(d.author))){closeDialog();state.page='profile';render()}else authorDialog(d.author);return}
@@ -93,6 +120,7 @@ if(['publish-draft','edit-profile'].includes(action)&&!requireAccount())return;
 if(action==='comments')showComments(d.id);
 if(action==='directions')directionDialog();
 if(action==='back')back();
+if(action==='return-main')returnMainFeed();
 if(action==='next')moveFeed(1);
 if(action==='trail'){state.trail=!state.trail;renderAnchoredFeed()}
 if(action==='why'){state.why=!state.why;renderAnchoredFeed()}
@@ -107,11 +135,12 @@ document.addEventListener('change',e=>{if(e.target.id==='save-history'){socialSa
 document.addEventListener('submit',e=>{if(e.target.id==='comment-form'){e.preventDefault();socialReply(e.target)}if(e.target.id==='profile-form'){e.preventDefault();saveProfileDraft(e.target)}});
 $('#search').addEventListener('input',e=>{scheduleSocialSearch(e.target.value)});
 $('.logo').addEventListener('click',e=>{e.preventDefault();state.page='home';render()});
-document.addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||e.target.isContentEditable)return;if(e.key==='/'&&!$('#dialog').open){e.preventDefault();if(getComputedStyle($('.rightbar')).display!=='none')$('#search').focus();else{state.page='discover';render()}return}if($('#dialog').open){if(e.key==='ArrowRight'&&$('#dialog-content').innerHTML.includes('data-direction')){e.preventDefault();closeDialog();goDeeper()}return}if(state.page!=='home')return;if(['ArrowRight','ArrowLeft'].includes(e.key)){e.preventDefault();const root=visibleFeedRoot();if(root)activateFeedRoot(root);if(e.key==='ArrowRight')goDeeper();if(e.key==='ArrowLeft')back()}});
+document.addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT|VIDEO|AUDIO/.test(e.target.tagName)||e.target.isContentEditable)return;if(e.key==='/'&&!$('#dialog').open){e.preventDefault();if(getComputedStyle($('.rightbar')).display!=='none')$('#search').focus();else{state.page='discover';render()}return}if($('#dialog').open){if(e.key==='ArrowRight'&&$('#dialog-content').innerHTML.includes('data-direction')){e.preventDefault();closeDialog();goDeeper()}return}if(state.page!=='home')return;if(['ArrowRight','ArrowLeft'].includes(e.key)){e.preventDefault();const root=visibleFeedRoot();if(root)activateFeedRoot(root);if(e.key==='ArrowRight')goDeeper();if(e.key==='ArrowLeft')back()}});
 let touchStart=null;
 function bindGestures(){
  document.querySelectorAll('.gesture-area').forEach(area=>{
-  area.addEventListener('touchstart',e=>{touchStart=null;if(e.touches.length!==1||e.target.closest('button,input,textarea,select'))return;const t=e.touches[0];touchStart={x:t.clientX,y:t.clientY,root:area.closest('.feed-entry').dataset.root}},{passive:true});
+  if(area.dataset.gestureBound)return;area.dataset.gestureBound='true';
+  area.addEventListener('touchstart',e=>{touchStart=null;if(e.touches.length!==1||e.target.closest('button,a,input,textarea,select,summary,video,audio,[contenteditable]'))return;const t=e.touches[0];touchStart={x:t.clientX,y:t.clientY,root:area.closest('.feed-entry').dataset.root}},{passive:true});
   area.addEventListener('touchmove',e=>{if(!touchStart)return;if(e.touches.length!==1){touchStart=null;return}const t=e.touches[0],dx=t.clientX-touchStart.x,dy=t.clientY-touchStart.y;if(Math.abs(dx)>Math.max(12,Math.abs(dy)*1.2)&&e.cancelable)e.preventDefault()},{passive:false});
   area.addEventListener('touchcancel',()=>{touchStart=null},{passive:true});
   area.addEventListener('touchend',e=>{if(!touchStart)return;const start=touchStart;touchStart=null;const t=e.changedTouches[0];if(!t)return;const dx=t.clientX-start.x,dy=t.clientY-start.y;if(Math.abs(dx)>=40&&Math.abs(dx)>Math.abs(dy)*1.2){activateFeedRoot(start.root);dx<0?goDeeper():back()}},{passive:true});
