@@ -22,7 +22,7 @@ function exploreControls(){
   '</div></div>';
 }
 function exploreHeader(){
- return '<header class="explore-header"><div><h1>Explore</h1><span>Follow your curiosity</span></div><div class="explore-header-actions"><button class="icon-btn" data-page="studio" aria-label="Create a post">'+icon('plus')+'</button><button class="icon-btn" data-page="messages" aria-label="Messages">'+icon('comment')+'</button><button class="icon-btn" data-action="browse-menu" aria-label="More destinations">'+icon('settings')+'</button><button class="secondary-btn" data-page="home">'+icon('home')+'<span>Home</span></button></div></header>';
+ return '<header class="explore-header"><div><h1>Explore</h1><span>Follow your curiosity</span></div><div class="explore-header-actions"><button class="icon-btn" data-page="studio" aria-label="Create a post">'+icon('plus')+'</button><button class="icon-btn" data-page="messages" aria-label="Messages">'+icon('comment')+'</button><button class="icon-btn" data-action="browse-menu" aria-label="More destinations">'+icon('settings')+'</button><button class="secondary-btn" data-page="home" aria-label="Return to Home">'+icon('home')+'<span>Home</span></button></div></header>';
 }
 function renderExplore(){
  const p=current();
