@@ -44,3 +44,9 @@ Explore follows member-created connections and offers related posts based on a s
 
 - [GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages)
 - [Custom domains and DNS](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site)
+
+## Rabbit-hole viewer
+
+Horizontal exploration updates only the active post viewer. Author details, navigation controls, social actions, and neighboring feed entries retain their containers while content slides for 240 ms. Text posts use a spacious reading layout; photos, videos, audio, and custom sections retain appropriate layouts. A relationship label shows shared topics or member connections. Back retraces one step; Main feed returns to the root immediately. Vertical scrolling remains native. Reduced-motion preferences disable the slide, and departing media is paused. Custom layouts can grow naturally rather than being forced into a fixed card height.
+
+`responsive-check.html` embeds the actual public site in a narrow viewport for responsive QA. It has no sample runtime or additional dependencies.
