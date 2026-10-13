@@ -47,10 +47,13 @@ function exploreStageHeight(entry,layer,post=current()){
  const outside=['.post-head','.post-navigation','.explore-post-footer'].reduce((sum,selector)=>sum+(shell?.querySelector(selector)?.getBoundingClientRect().height||0),0);
  const available=Math.max(80,(entry.clientHeight||entry.getBoundingClientRect().height||window.innerHeight-120)-outside);
  const style=getComputedStyle(layer),padding=(parseFloat(style.paddingTop)||0)+(parseFloat(style.paddingBottom)||0);
- let natural=(content?.scrollHeight||layer.scrollHeight||0)+padding;
+ const panel=shell?.querySelector('.post-stage'),panelStyle=panel?getComputedStyle(panel):{};
+ const border=(parseFloat(panelStyle.borderTopWidth)||0)+(parseFloat(panelStyle.borderBottomWidth)||0);
+ const contentHeight=()=>content?Math.max(content.scrollHeight||0,content.getBoundingClientRect?.().height||0):(layer.scrollHeight||0);
+ let natural=Math.ceil(contentHeight()+padding+border);
  if(entry.dataset.presentation==='short-text'&&natural>available){
   entry.dataset.presentation='long-text';const updated=getComputedStyle(layer);
-  natural=(content?.scrollHeight||layer.scrollHeight||0)+(parseFloat(updated.paddingTop)||0)+(parseFloat(updated.paddingBottom)||0);
+  natural=Math.ceil(contentHeight()+(parseFloat(updated.paddingTop)||0)+(parseFloat(updated.paddingBottom)||0)+border);
  }
  if(['photo','video'].includes(entry.dataset.presentation)){
   const media=layer.querySelector('img,video'),width=media?.naturalWidth||media?.videoWidth,height=media?.naturalHeight||media?.videoHeight;
