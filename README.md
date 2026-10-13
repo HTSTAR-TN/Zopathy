@@ -81,3 +81,12 @@ For a new database, install the Account and Social schemas first, then run `Zopa
 The first release supports public groups only. There are no private groups, invitations, group chat, additional moderator roles, or push notifications. Discovery loads 50 groups at a time, discussions 25 posts at a time, and member/moderation lists up to 100/50 entries. Refresh updates a group's shared data. Creating a group is limited to 20 active owned groups per account.
 
 Tests cover anonymous browsing, atomic creation, repeat joins, real counts, nonmember restrictions, role forgery, owner controls, author privacy, bans, leaving, and archive/reopen. Database fixtures were rolled back, so no test groups or posts remain. Frontend tests cover discovery, escaped content, group posting, routing, draft preservation, and account reset.
+
+
+## Profile Studio
+
+The Profile Designer now opens a dedicated full-viewport Profile Studio. Profile, Appearance, Layout, Typography, Effects, and Advanced categories show one inspector panel at a time beside the main preview. All previous identity, handle, image upload/crop/removal, signature themes/colors, templates, canvas colors/backgrounds, layout, typography, effects, and safe custom CSS controls remain. Hidden panels stay mounted, so switching categories does not discard values. Saved appearance records and database validation are unchanged.
+
+The preview remains the existing script-disabled canvas. Parent-side selection highlights the banner, avatar, text, or sections and opens the corresponding inspector. Custom CSS stays inside the canvas and never styles Studio. Desktop/mobile preview switching, save, discard, individual resets, canvas reset, and default-appearance restoration are supported. Restoring appearance retains identity and images. Draft undo/redo retains up to 24 snapshots, coalescing inputs over 250 ms; text fields retain native typing undo. Unsaved changes are clearly labeled, and navigation away warns about the private draft. Expensive preview rendering remains debounced at 100 ms.
+
+Mobile uses a compact preview above a horizontally scrollable category selector and inspector. This release does not add widgets or a drag-and-drop positioning engine: section selection opens the existing spacing/width/column controls, and isolated CSS remains available for custom positioning.

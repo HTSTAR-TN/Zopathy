@@ -95,7 +95,7 @@ function renderStudioBlocks(blocks){return socialBlocks(blocks)}
 function renderRight(){const p=current();$('#related-panel').innerHTML=`<div class="section-head"><h3>Related posts</h3><span>\u2197</span></div><p class="related-intro">${state.page==='home'&&p?`${esc(p.topic)}`:'Explore connected posts.'}</p>${related().slice(0,3).map(e=>`<button class="related-card" data-related="${e.to}"><span class="related-thumbnail">${e.glyph}</span><div><strong>${esc(e.label)}</strong><small>${esc(getPost(e.to)?.topic)} \u00b7 ${esc(e.type)}</small></div><span class="arrow">\u2192</span></button>`).join('')||'<p class="related-intro">You reached the end of this trail. Jump back a step, or see what\u2019s next in your feed.</p>'}`}
 function render(){for(const root of [...viewerMotions.keys()])finishViewerMotion(root);nav();const pages={home:renderHome,discover:renderDiscover,bookmarks:renderBookmarks,history:renderHistory,studio:renderStudio,profile:renderProfile,member:socialMemberPage,groups:renderGroups,group:renderGroup,settings:renderSettings,account:renderAccount};$('#main').innerHTML=(pages[state.page]||renderHome)();renderRight();renderSocialPeople();bindProfileCanvases();state.transition='';if(state.page==='home')bindGestures()}
 function openDialog(html){$('#dialog-content').innerHTML=html;$('#dialog').showModal()}
-function closeDialog(){closeProfileCrop();social.commentPost=null;social.authorId=null;$('#dialog').close();$('#dialog').classList.remove('profile-editor-dialog');profileDraft=null}
+function closeDialog(){if(typeof profileStudio!=='undefined'){clearTimeout(profileStudio.timer);profileStudio.active=false;profileStudio.past=[];profileStudio.future=[];}closeProfileCrop();social.commentPost=null;social.authorId=null;$('#dialog').close();$('#dialog').classList.remove('profile-editor-dialog','profile-studio-dialog');profileDraft=null}
 function directionDialog(){const options=related();openDialog(`<h2>Explore related posts</h2><p class="intro">Choose a topic, or press \u2192 to open the first connection.</p>${options.length?options.map(e=>`<button class="related-card" data-direction="${e.to}"><span class="related-thumbnail">${e.glyph}</span><div><strong>${esc(getPost(e.to)?.topic)}</strong><small>${esc(e.label)}</small><small>${esc(e.type)}</small></div><span class="arrow">\u2192</span></button>`).join(''):'<p class="intro">This trail ends here. Back up a step or try the next feed post.</p>'}`)}
 function showComments(id){socialComments(id)}
 function authorDialog(id){const p=getPost(id);if(p)socialAuthor(p.user)}
@@ -104,7 +104,7 @@ document.addEventListener('toggle',e=>{if(e.target.id==='composer-customize')cus
 let chosenTheme=null;
 document.addEventListener('click',e=>{const el=e.target.closest('button,a');if(!el)return;const d=el.dataset;if(d.authMode){openAccount(d.authMode);return}if(d.authAction){handleAuthAction(d.authAction);return}if(['studio','profile'].includes(d.page)&&!requireAccount())return;if(d.siteTheme){setSiteTheme(d.siteTheme);return}const feedEntry=el.closest('.feed-entry');if(feedEntry)activateFeedRoot(feedEntry.dataset.root);if(d.cropAction){handleCropAction(d.cropAction);return}if(d.profileCrop){if(!requireAccount())return;if(!profileDraft)openProfileEditor();openProfileCrop(d.profileCrop);return}if(handleProfileClick(el,d))return;
 if(d.action==='close-group-editor'){closeDialog();return}
-if(el.closest('.dialog-close')){if(profileCrop)closeProfileCrop();else closeDialog();return}
+if(el.closest('.dialog-close')){if(profileCrop)closeProfileCrop();else if(!profileStudio.saving)closeDialog();return}
 if(d.page){e.preventDefault();closeDialog();if(d.page!=='studio')groupLeaveURL();state.page=d.page;if(d.page==='home')state.focusPost=null;state.search='';$('#search').value='';render();window.scrollTo(0,0);if(d.page==='groups')loadGroupDirectory();return}
 if(d.tab){remember();state.tab=d.tab;state.focusPost=null;state.rootIndex=0;state.path=[];state.trail=false;render();return}
 if(d.open){closeDialog();openRoot(d.open);return}
@@ -171,7 +171,7 @@ document.addEventListener('wheel',e=>{
  wheelPeak=Math.max(wheelPeak,magnitude);wheelLastDelta=delta;wheelTotal+=delta;
  if(Math.abs(wheelTotal)>=24){wheelConsumed=true;wheelActivatedAt=now;activateFeedRoot(root);wheelTotal>0?goDeeper():back()}
 },{passive:false});
-$('#dialog').addEventListener('close',()=>{$('#dialog').classList.remove('profile-editor-dialog');profileDraft=null});
+$('#dialog').addEventListener('close',()=>{profileStudio.active=false;clearTimeout(profileStudio.timer);$('#dialog').classList.remove('profile-editor-dialog','profile-studio-dialog');profileDraft=null});
 $('#dialog').addEventListener('click',e=>{if(e.target===$('#dialog')){const r=$('#dialog').getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)closeDialog()}});
 render();
 initializeAccounts();
