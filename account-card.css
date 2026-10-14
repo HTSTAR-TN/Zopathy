@@ -1,0 +1,19 @@
+/* Sidebar account identity; existing profile and sign-out actions are retained. */
+.sidebar .account-controls{border-top:0;padding-top:14px}
+.sidebar-account-card{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:10px;min-width:0}
+.sidebar-account-card .account-user{gap:10px;padding:3px 0 9px;min-width:0;border-radius:8px}
+.sidebar-account-card .account-user .avatar{width:38px;height:38px;flex:0 0 38px}
+.sidebar-account-card .account-identity{display:block;min-width:0;flex:1}
+.sidebar-account-card .account-name-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
+.sidebar-account-card .account-user strong{font-size:13px;line-height:1.4;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sidebar-account-card .account-user small{font-size:11px;line-height:1.4;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sidebar-account-card .official-badges{display:inline-flex;margin:0;gap:4px;flex-wrap:wrap}
+.sidebar-account-card .official-badge{font-size:9px;line-height:1.4;padding:2px 6px;border:0;border-radius:999px;color:var(--text);background:color-mix(in srgb,var(--text) 10%,var(--panel));letter-spacing:0}
+.sidebar .sidebar-account-card .account-signout{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:9px 0 2px;border-top:1px solid var(--line);color:var(--muted);font-size:11px;line-height:1.4;margin-top:1px}
+.sidebar-account-card .account-signout svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.sidebar-account-card .account-user:hover strong,.sidebar-account-card .account-signout:hover{color:var(--accent)}
+.sidebar-account-card button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+[data-destination="explore"]:not([data-explore-rail="expanded"]) .sidebar-account-card{border:0;background:transparent;padding:0}
+[data-destination="explore"]:not([data-explore-rail="expanded"]) .sidebar-account-card .account-user{padding:0;justify-content:center}
+[data-destination="explore"]:not([data-explore-rail="expanded"]) .sidebar-account-card .account-signout{display:none}
+@media(max-height:650px) and (min-width:701px){.sidebar-account-card{padding:8px}.sidebar-account-card .account-user{padding-bottom:7px}.sidebar .sidebar-account-card .account-signout{padding-top:7px}}
