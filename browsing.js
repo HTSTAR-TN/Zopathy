@@ -102,3 +102,7 @@ function browseAnimateDestination(){
  browsing.animateDestination=false;
 }
 document.addEventListener('change',event=>{if(event.target.id==='browse-destination')socialSavePreferences({browseDestination:event.target.value})});
+
+function browseMoreMenu(){
+ openDialog('<h2>More on Zopathy</h2><p class="intro">Your friends and saved conversations.</p><nav class="browse-menu" aria-label="More destinations">'+navigation.filter(([page])=>['friends','bookmarks','history'].includes(page)).map(([page,ic,label])=>'<button class="secondary-btn" data-page="'+page+'">'+icon(ic)+'<span>'+esc(label)+'</span></button>').join('')+'</nav>');
+}
