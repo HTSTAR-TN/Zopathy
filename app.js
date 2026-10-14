@@ -137,7 +137,7 @@ if(action==='why'){state.why=!state.why;renderAnchoredFeed()}
 if(action==='resume-path'){browseInvalidate();state.path=[...(paths[rootId()]||[])].filter(getPost);state.trail=true;renderAnchoredFeed()}
 if(action==='edit-profile')editProfile();if(action==='cancel-profile')closeDialog();
 if(action==='clear-history'){socialClearHistory();return}
-if(action==='preview-draft'){openDialog(`<h2>${esc(draft.title||'Untitled creation')}</h2><p class="intro">Post preview</p>${draft.text?`<p class="preview-text">${esc(draft.text)}</p>`:''}${renderStudioBlocks(draft.blocks)}`)}
+if(action==='preview-draft')previewPostDraft()
 if(action==='publish-draft'){socialPublish();return}
 });
 document.addEventListener('input',e=>{const d=e.target.dataset;if(e.target.id==='draft-title')draft.title=e.target.value;if(e.target.id==='draft-body')draft.text=e.target.value;if(e.target.id==='draft-topic')draft.topic=e.target.value;if(d.blockText!==undefined)draft.blocks[Number(d.blockText)].text=e.target.value;if(d.blockTitle!==undefined)draft.blocks[Number(d.blockTitle)].title=e.target.value;if(d.blockColor!==undefined)draft.blocks[Number(d.blockColor)].color=e.target.value});
@@ -145,12 +145,12 @@ document.addEventListener('change',e=>{if(e.target.id==='save-history'){socialSa
 document.addEventListener('submit',e=>{if(e.target.id==='comment-form'){e.preventDefault();socialReply(e.target)}if(e.target.id==='profile-form'){e.preventDefault();saveProfileDraft(e.target)}});
 $('#search').addEventListener('input',e=>{scheduleSocialSearch(e.target.value)});
 $('.logo').addEventListener('click',e=>{e.preventDefault();groupLeaveURL();browsing.explicit=true;state.page='home';render()});
-document.addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT|VIDEO|AUDIO/.test(e.target.tagName)||e.target.isContentEditable)return;if(e.key==='/'&&!$('#dialog').open){e.preventDefault();if(getComputedStyle($('.rightbar')).display!=='none')$('#search').focus();else{state.page='discover';render()}return}if($('#dialog').open){if(state.page==='explore')return;if(e.key==='ArrowRight'&&$('#dialog-content').innerHTML.includes('data-direction')){e.preventDefault();closeDialog();goDeeper()}return}if(state.page!=='home')return;if(['ArrowRight','ArrowLeft'].includes(e.key)){e.preventDefault();const root=visibleFeedRoot();if(root)activateFeedRoot(root);if(e.key==='ArrowRight')goDeeper();if(e.key==='ArrowLeft')back()}});
+document.addEventListener('keydown',e=>{if(e.target.closest?.('[data-no-navigation]')||/INPUT|TEXTAREA|SELECT|VIDEO|AUDIO/.test(e.target.tagName)||e.target.isContentEditable)return;if(e.key==='/'&&!$('#dialog').open){e.preventDefault();if(getComputedStyle($('.rightbar')).display!=='none')$('#search').focus();else{state.page='discover';render()}return}if($('#dialog').open){if(state.page==='explore')return;if(e.key==='ArrowRight'&&$('#dialog-content').innerHTML.includes('data-direction')){e.preventDefault();closeDialog();goDeeper()}return}if(state.page!=='home')return;if(['ArrowRight','ArrowLeft'].includes(e.key)){e.preventDefault();const root=visibleFeedRoot();if(root)activateFeedRoot(root);if(e.key==='ArrowRight')goDeeper();if(e.key==='ArrowLeft')back()}});
 let touchStart=null;
 function bindGestures(){
  document.querySelectorAll('.gesture-area').forEach(area=>{
   if(area.dataset.gestureBound)return;area.dataset.gestureBound='true';
-  area.addEventListener('touchstart',e=>{touchStart=null;if(e.touches.length!==1||e.target.closest('button,a,input,textarea,select,summary,audio,[contenteditable]'))return;const t=e.touches[0],video=e.target.closest('video');if(video&&t.clientY>video.getBoundingClientRect().bottom-48)return;touchStart={x:t.clientX,y:t.clientY,root:area.closest('.feed-entry').dataset.root}},{passive:true});
+  area.addEventListener('touchstart',e=>{touchStart=null;if(e.touches.length!==1||e.target.closest('button,a,input,textarea,select,summary,audio,[contenteditable],[data-no-navigation]'))return;const t=e.touches[0],video=e.target.closest('video');if(video&&t.clientY>video.getBoundingClientRect().bottom-48)return;touchStart={x:t.clientX,y:t.clientY,root:area.closest('.feed-entry').dataset.root}},{passive:true});
   area.addEventListener('touchmove',e=>{if(!touchStart)return;if(e.touches.length!==1){touchStart=null;return}const t=e.touches[0],dx=t.clientX-touchStart.x,dy=t.clientY-touchStart.y;if(Math.abs(dx)>Math.max(12,Math.abs(dy)*1.2)&&e.cancelable)e.preventDefault()},{passive:false});
   area.addEventListener('touchcancel',()=>{touchStart=null},{passive:true});
   area.addEventListener('touchend',e=>{if(!touchStart)return;const start=touchStart;touchStart=null;const t=e.changedTouches[0];if(!t)return;const dx=t.clientX-start.x,dy=t.clientY-start.y;if(Math.abs(dx)>=40&&Math.abs(dx)>Math.abs(dy)*1.2){activateFeedRoot(start.root);dx<0?goDeeper():back()}},{passive:true});
@@ -160,7 +160,7 @@ function bindGestures(){
 // gestures over a post can navigate its exploration path.
 let wheelTotal=0,wheelTime=null,wheelConsumed=false,wheelPeak=0,wheelLastDelta=0,wheelActivatedAt=0,wheelDecayed=false,wheelRoot=null;
 document.addEventListener('wheel',e=>{
- if(state.page!=='home'||$('#dialog').open||e.target.closest('.rightbar,.sidebar,input,textarea,select'))return;
+ if(state.page!=='home'||$('#dialog').open||e.target.closest('.rightbar,.sidebar,input,textarea,select,[data-no-navigation]'))return;
  if(Math.abs(e.deltaX)<=Math.abs(e.deltaY)*1.5)return;
  const entry=e.target.closest('.feed-entry');if(!entry)return;
  const now=Date.now(),targetRoot=entry.dataset.root;
