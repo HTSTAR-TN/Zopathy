@@ -5,6 +5,7 @@ const routeUUID=value=>/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9
 function parseRoute(url){let parts;try{parts=url.pathname.split('/').filter(Boolean).map(decodeURIComponent);}catch{return {page:'not-found'};}const q=url.searchParams,path=(q.get('path')||'').split(',').filter(routeUUID).slice(0,32),source=q.get('feed')==='following'?'following':'for-you';
  if(!parts.length||parts[0]==='index.html'){if(q.has('group'))return {page:'group',group:q.get('group')};if(routeUUID(q.get('post')))return {page:q.get('view')==='explore'?'explore':'home',post:q.get('post'),path,source};if(['home','explore'].includes(q.get('view')))return {page:q.get('view'),source};return null;}
  if(parts.length===1&&/^@[a-z0-9_]{3,24}$/i.test(parts[0]))return {page:'member',handle:parts[0].slice(1).toLowerCase()};
+ if(parts[0]==='u'&&parts.length===2&&/^[a-z0-9_]{3,24}$/i.test(parts[1]))return {page:'member',handle:parts[1].toLowerCase()};
  if(parts[0]==='users'&&parts.length===2&&routeUUID(parts[1]))return {page:'member',member:parts[1]};
  if(parts[0]==='post'&&parts.length===2&&routeUUID(parts[1]))return {page:'home',post:parts[1],path,source};
  if(parts[0]==='groups'&&parts.length===2&&(/^[a-z0-9][a-z0-9-]{2,47}$/.test(parts[1])||routeUUID(parts[1])))return {page:'group',group:parts[1]};
@@ -16,7 +17,7 @@ function parseRoute(url){let parts;try{parts=url.pathname.split('/').filter(Bool
 function routePrime(){routing.initial=parseRoute(new URL(location.href));if(routing.initial)browsing.explicit=true;}
 function routeSnapshot(){return {root:state.rootPostId,path:[...state.path],source:state.tab,post:state.routePostId||null,homePosition:browsing.homePosition?{...browsing.homePosition}:null,scroll:window.scrollY||0};}
 function routeURL(){const params=new URLSearchParams();let path='/'+(Object.keys(routePages).find(k=>routePages[k]===state.page)||'home');
- if(state.page==='member')path=state.memberRow?.username?'/@'+encodeURIComponent(state.memberRow.username):'/users/'+encodeURIComponent(social.authorId||'');
+ if(state.page==='member')path=state.memberRow?.username?'/u/'+encodeURIComponent(state.memberRow.username):'/users/'+encodeURIComponent(social.authorId||'');
  if(state.page==='group')path='/groups/'+encodeURIComponent(groups.current?.slug||groups.id||'');
  if(state.page==='messages'&&community.target)path+='/'+encodeURIComponent(community.target);
  if(state.page==='account'&&authMode!=='signin'&&authMode!=='update-password')params.set('mode',authMode);

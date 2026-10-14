@@ -16,4 +16,6 @@
 /account /index.html 200
 /post/* /index.html 200
 /users/* /index.html 200
-/@* /index.html 200
+/u/* /index.html 200
+/@* /u/:splat 302
+/%40* /u/:splat 302
