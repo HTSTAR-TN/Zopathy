@@ -22,7 +22,7 @@ function exploreStageJourney(root,path){
  const relationship=path.length?postRelationship(path.length===1?root:path.at(-2),path.at(-1)):null;
  const reason=state.why&&relationship?'<p class="viewer-explanation">'+esc(relationship.reason)+'</p>':'';
  if(path.length)return reason+'<button class="stage-path-toggle" data-action="trail" aria-expanded="'+state.trail+'">'+icon('history')+' '+(state.trail?'Hide path':'View path')+'</button>'+(state.trail?trailHTML(path,root):'');
- const saved=paths[root];return saved?.length?'<button class="stage-path-toggle" data-action="resume-path">'+icon('history')+' Resume path <span>'+saved.length+' deep</span></button>':'';
+ const saved=paths[root];return '';
 }
 function exploreStageCard(post){
  let card=postCard(post,{root:rootId(),path:state.path});
