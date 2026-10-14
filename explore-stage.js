@@ -16,6 +16,7 @@ function exploreStageControls(){
 function exploreStageContext(post,root,path){
  const relation=path.length?postRelationship(path.length===1?root:path.at(-2),post.id):null;
  const tag=relation?'button':'span',attributes=relation?'data-action="why" aria-expanded="'+state.why+'" title="'+esc(relation.reason)+'"':'role="status"';
+ if(!path.length)return postTagsButton(post)+'<span class="stage-stream-label">Main stream</span>';
  return '<'+tag+' class="stage-context-label" '+attributes+'>'+(path.length?'<span class="stage-branch-mark"></span><strong>'+path.length+' deep</strong><span class="stage-context-separator">/</span>':'')+esc(relation?.type||post.topic)+'</'+tag+'>'+(path.length?'<button class="stage-root-return" data-action="return-main" aria-label="Return to root post">Stream post '+icon('close')+'</button>':'<span class="stage-stream-label">Main stream</span>');
 }
 function exploreStageJourney(root,path){
