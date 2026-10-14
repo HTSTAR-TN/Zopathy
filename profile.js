@@ -11,7 +11,7 @@ function normalizeProfile(value){
  const choices={shape:['circle','rounded','square'],font:['sans','serif','mono'],effect:['soft','outline','glow'],bannerPosition:['top','center','bottom'],avatarPosition:['top','center','bottom']};
  for(const [key,options]of Object.entries(choices))if(!options.includes(p[key]))p[key]=profileDefaults[key];
  p.bannerHeight=160;p.overlay=88;p.avatarPosition='center';p.bannerPosition='center';p.badges=!!p.badges;
- p.design=normalizeCanvasDesign(p.design,p);
+ p.design=normalizeCanvasDesign(p.design,p);p.header=normalizeProfileHeader(p.header,p);
  return p;
 }
 const profileFont=p=>({sans:'inherit',serif:'Georgia,serif',mono:'ui-monospace,monospace'}[p.font]||'inherit');
