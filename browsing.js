@@ -79,7 +79,7 @@ function browsePreferenceSetting(){
  return '<section class="browse-preference settings-row"><div><h3>Start browsing in</h3><p>'+(!authUser?'Sign in to sync this preference.':ready?'Your preferred starting view syncs across devices. Post links and your navigation take priority.':'Account sync needs the prepared browsing-preference database update.')+'</p></div><select id="browse-destination" aria-label="Preferred initial browsing destination" '+(!ready?'disabled':'')+'><option value="home" '+(prefs.browseDestination==='home'?'selected':'')+'>Home</option><option value="explore" '+(prefs.browseDestination==='explore'?'selected':'')+'>Explore</option></select></section>';
 }
 function browseApplyInitialDestination(renderView=true){
- if(browsing.initialApplied)return;browsing.initialApplied=true;
+ if(browsing.initialApplied)return;browsing.initialApplied=true;if(routing.initial&&!routing.ready)return;
  const url=new URL(location.href);
  if(browsing.explicit||state.page!=='home'||url.searchParams.has('post')||url.searchParams.has('group'))return;
  const view=url.searchParams.get('view'),destination=['home','explore'].includes(view)?view:(prefs.browseDestination==='explore'?'explore':'home');

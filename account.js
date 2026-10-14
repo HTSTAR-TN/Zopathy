@@ -31,7 +31,7 @@ async function applyAccountUser(user){
   if(data){accountUsername=data.username;profile=normalizeProfile({...data.appearance,name:data.display_name,bio:data.bio,status:data.status});}
   else if(error){toast('Your account is signed in, but its profile could not load. Please try again.');}
  }
- if(generation===authGeneration){await loadSocial();if(generation===authGeneration){browseApplyInitialDestination();await socialLoadDeepLink();if(generation===authGeneration)browseApplyExplicitView()}}
+ if(generation===authGeneration){await loadSocial();if(generation===authGeneration){browseApplyInitialDestination();await routeInitialize()}}
 }
 async function persistAccountProfile(candidate,username=accountUsername){
  if(!authUser||!authClient)throw Error('Sign in to save your profile.');
@@ -64,7 +64,7 @@ async function submitAuthForm(form){
   if(mode==='signup'){
    const displayName=String(fields.get('displayName')||'').trim();if(!displayName)throw {code:'name_required'};
    const {data,error}=await authClient.auth.signUp({email,password,options:{data:{display_name:displayName.slice(0,32)},emailRedirectTo:location.origin+'/'}});if(error)throw error;
-   if(data.session){await applyAccountUser(data.user);state.page='profile';render()}
+   if(data.session){await applyAccountUser(data.user);await routeAfterSignIn();render()}
    else{form.reset();setAuthMessage('Check your email to confirm your account, then sign in. If you already have an account, use Sign in instead.');}
   }else if(mode==='recover'){
    const {error}=await authClient.auth.resetPasswordForEmail(email,{redirectTo:location.origin+'/?account=recovery'});if(error)throw error;
@@ -72,10 +72,10 @@ async function submitAuthForm(form){
   }else if(mode==='update-password'){
    if(!authUser)throw {code:'invalid_credentials'};
    const {error}=await authClient.auth.updateUser({password});if(error)throw error;
-   authMode='signin';state.page='profile';render();toast('Password updated.');
+   authMode='signin';await routeAfterSignIn();render();toast('Password updated.');
   }else{
    const {data,error}=await authClient.auth.signInWithPassword({email,password});if(error)throw error;
-   await applyAccountUser(data.user);state.page='profile';render();toast('Signed in.');
+   await applyAccountUser(data.user);await routeAfterSignIn();render();toast('Signed in.');
   }
  }catch(error){setAuthMessage(error.code==='name_required'?'Enter a display name.':friendlyAuthError(error),true)}
  finally{authBusy=false;for(const input of form.querySelectorAll('input[type="password"]'))input.value='';if(button.isConnected){button.disabled=false;button.textContent=mode==='signup'?'Create account':mode==='recover'?'Send reset link':mode==='update-password'?'Save new password':'Sign in'}}
