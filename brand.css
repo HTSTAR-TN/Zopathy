@@ -1,2 +1,9 @@
-.logo .orbit-brand-mark{display:block;object-fit:contain;flex-shrink:0;border:0;box-shadow:none;filter:none;border-radius:22%}.logo .zopathy-wordmark{letter-spacing:-.7px}
-.logo .zopathy-wordmark{display:block;flex:1;min-width:0;line-height:0}.logo .zopathy-brand-banner{display:block;width:100%;height:auto;object-fit:contain}.logo .orbit-brand-mark{width:34px;height:34px}.sidebar .logo{gap:8px}
+/* Transparent scalable header wordmark, without a panel or adjacent icon. */
+.sidebar .logo.brand-wordmark-only{display:flex;justify-content:flex-start;gap:0;padding-left:0;padding-right:0;background:none;box-shadow:none}
+.brand-wordmark-only .brand-lockup{display:flex;flex-direction:column;gap:10px;max-width:100%;padding:5px 0;background:none}
+.brand-wordmark-only .brand-name{display:flex;align-items:center;color:#f7f7fa;font-family:Arial,Helvetica,sans-serif;font-size:29px;font-weight:900;letter-spacing:1.1px;line-height:1;white-space:nowrap}
+.brand-wordmark-only .brand-a{display:inline-block;width:27px;height:28px;margin:0 1px;background:#ff2d5b;clip-path:polygon(0 100%,50% 0,100% 100%,73% 100%,50% 52%,27% 100%);flex-shrink:0}
+.brand-wordmark-only .brand-tagline{display:block;color:#f7f7fa;font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:400;letter-spacing:2.8px;line-height:1.2;white-space:nowrap}
+@media(min-width:701px) and (max-width:1000px){.sidebar .logo.brand-wordmark-only{justify-content:center}.brand-wordmark-only .brand-name{font-size:24px}.brand-wordmark-only .brand-a{width:23px;height:24px}.brand-wordmark-only .brand-tagline{font-size:8px;letter-spacing:2.3px}.brand-wordmark-only .brand-lockup{gap:8px}}
+@media(max-width:700px){.sidebar .logo.brand-wordmark-only{display:none}}
+.sidebar .logo.brand-wordmark-only{container-type:inline-size}.brand-wordmark-only .brand-name{font-size:clamp(9px,15cqw,29px);letter-spacing:.04em}.brand-wordmark-only .brand-a{width:.93em;height:.96em}.brand-wordmark-only .brand-tagline{font-size:clamp(4px,5cqw,10px);letter-spacing:.28em}.brand-wordmark-only .brand-lockup{gap:clamp(4px,5cqw,10px)}
