@@ -47,7 +47,7 @@ function handleProfileClick(el,d){
   document.querySelectorAll('.theme-dot').forEach(b=>{b.classList.toggle('active',b.dataset.theme===d.theme);b.setAttribute('aria-pressed',b.dataset.theme===d.theme)});refreshProfilePreview();return true;
  }
  if(d.profileRemove){const key=d.profileRemove;if(profileCrop?.key===key)closeProfileCrop();delete profileCropSources[key];profileUploadCounts[key]=(profileUploadCounts[key]||0)+1;profilePendingUploads.delete(key);profileDraft[key]='';el.disabled=true;const input=$(`[data-profile-image="${key}"]`);if(input)input.value='';$('#upload-status-'+key).textContent='No custom image';refreshProfilePreview();return true}
- if(d.profileReset!==undefined){profileDraft.design=normalizeCanvasDesign(canvasDefaults);$('#designer-controls').innerHTML=designerControls();refreshProfilePreview();toast('Canvas reset in the draft. Save to apply it.');return true}
+ if(d.profileReset!==undefined){const widgets=profileDraft.design.widgets;profileDraft.design=normalizeCanvasDesign(canvasDefaults);profileDraft.design.widgets=widgets;$('#designer-controls').innerHTML=designerControls();refreshProfilePreview();toast('Canvas reset in the draft. Save to apply it.');return true}
  return false;
 }
 async function profileImageFromUrl(url){return new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>reject(Error('That image could not be opened. Try another one.'));image.src=url})}
@@ -82,7 +82,7 @@ async function saveProfileDraft(form){
  if(profilePendingUploads.size){toast('Let your image finish preparing, then save.');return}
  for(const input of form.elements)if(input.name&&input.name in profileDefaults){if(['nameColor','accentColor'].includes(input.name)&&!profileDraft[input.name]&&input.value===(input.name==='nameColor'?profileNameColor(profileDraft):profileAccent(profileDraft)))continue;updateProfileField(input);}
  const cssInput=$('[data-design-css]');const cssError=validateCanvasCSS(cssInput?.value||'');if(cssError){toast(cssError);return}
- const saved=normalizeProfile(profileDraft);
+ const saved=normalizeProfile(profileDraft);if(new TextEncoder().encode(JSON.stringify(saved.design.widgets)).length>500000){toast('Your widgets contain too many images. Remove an image or use a smaller one.');return}if(new TextEncoder().encode(JSON.stringify(saved)).length>1550000){toast('Your profile is too large. Remove an image or use a smaller one.');return}
  const owner=authUser?.id;if(!owner){openAccount('signin');return}const save=form.querySelector('button[type="submit"]');if(save)save.disabled=true;profileStudio.saving=true;studioSync();try{await persistAccountProfile(saved,form.elements.namedItem('username').value)}catch(error){profileStudio.saving=false;studioSync();toast(error.message);if(save)save.disabled=false;return}profileStudio.saving=false;if(authUser?.id!==owner)return;
  profile=saved;profileDraft=null;closeDialog();render();toast('Your new look is saved.');
 }
