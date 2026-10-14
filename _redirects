@@ -6,13 +6,13 @@
 /groups /index.html 200
 /groups/* /index.html 200
 /friends /index.html 200
-/messages /index.html 200
-/messages/* /index.html 200
+/messages / 200
+/messages/* / 200
 /bookmarks /index.html 200
 /history /index.html 200
 /create /index.html 200
 /profile /index.html 200
-/settings /index.html 200
+/settings / 200
 /admin /index.html 200
 /account /index.html 200
 /post/* /index.html 200
@@ -20,3 +20,4 @@
 /u/* /index.html 200
 /@* /u/:splat 302
 /%40* /u/:splat 302
+
