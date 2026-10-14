@@ -21,7 +21,7 @@ function openAccount(mode='signin',message=''){authMode=mode;authNotice=message;
 function requireAccount(){if(authUser)return true;if(!authReady&&authConfigured()&&authTransportSecure()){toast('Your account is reconnecting. Please wait or try again.');return false}openAccount('signin','Sign in or create an account to continue.');return false}
 function setAuthMessage(message,error=false){authNotice=message;const el=$('#auth-message');if(el){el.textContent=message;el.classList.toggle('auth-warning',error)}}
 async function applyAccountUser(user){
- const previousId=authUser?.id;const generation=++authGeneration;authUser=user||null;accountUsername=authUser?'z_'+authUser.id.replaceAll('-','').slice(0,8):'you';
+ const previousId=authUser?.id;const generation=++authGeneration;authUser=user||null;if(previousId!==authUser?.id)algorithmAccountChanged();accountUsername=authUser?'z_'+authUser.id.replaceAll('-','').slice(0,8):'you';
  if(previousId!==authUser?.id){draft={title:'',text:'',blocks:[]};closeDialog();}
  resetSocial();prefs={saveHistory:true,siteTheme:'red',browseDestination:'home',...read('preferences',{})};state.focusPost=null;state.rootPostId=null;state.rootIndex=0;state.path=[];state.trail=false;state.why=false;
  profile=authUser?normalizeProfile({...profileDefaults,name:authUser.user_metadata?.display_name||'Explorer',bio:'',status:''}):normalizeProfile(profileDefaults);

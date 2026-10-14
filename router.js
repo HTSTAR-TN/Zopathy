@@ -1,6 +1,6 @@
 // A small History API adapter around the existing page state and loaders.
 const routing={ready:false,applying:false,sequence:0,initial:null,lastURL:'',snapshot:null,pending:null,scrollPositions:new Map()};
-const routePages={home:'home',explore:'explore',search:'discover',groups:'groups',friends:'friends',messages:'messages',bookmarks:'bookmarks',history:'history',create:'studio',profile:'profile',settings:'settings',admin:'admin',account:'account'};
+const routePages={algorithms:'algorithms',home:'home',explore:'explore',search:'discover',groups:'groups',friends:'friends',messages:'messages',bookmarks:'bookmarks',history:'history',create:'studio',profile:'profile',settings:'settings',admin:'admin',account:'account'};
 const routeUUID=value=>/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(value||'');
 function parseRoute(url){let parts;try{parts=url.pathname.split('/').filter(Boolean).map(decodeURIComponent);}catch{return {page:'not-found'};}const q=url.searchParams,path=(q.get('path')||'').split(',').filter(routeUUID).slice(0,32),source=q.get('feed')==='following'?'following':'for-you';
  if(!parts.length||parts[0]==='index.html'){if(q.has('group'))return {page:'group',group:q.get('group')};if(routeUUID(q.get('post')))return {page:q.get('view')==='explore'?'explore':'home',post:q.get('post'),path,source};if(['home','explore'].includes(q.get('view')))return {page:q.get('view'),source};return null;}
@@ -32,7 +32,7 @@ function routeSync(){if(!routing.ready||routing.applying||!window.history?.pushS
  routing.snapshot=snapshot;document.title=(state.page==='member'&&state.memberRow?.display_name?state.memberRow.display_name+' · ':state.page==='home'?'':state.page==='explore'?'Explore · ':state.page==='not-found'?'Page not found · ':state.page[0].toUpperCase()+state.page.slice(1)+' · ')+'Zopathy';
 }
 async function routeApply(route,saved=null){const seq=++routing.sequence;closeDialog();routing.applying=true;browsing.explicit=true;browseInvalidate();social.authorId=null;groups.detailSeq++;state.routePostId=null;state.memberRow=null;state.memberError=false;state.path=[];state.why=false;state.trail=false;state.tab=route.source||saved?.source||'for-you';
- try{if(['profile','friends','messages','bookmarks','history','studio','admin'].includes(route.page)&&!authUser){routing.pending=route;state.page='account';authMode='signin';authNotice='Sign in to open this page.';render();return;}
+ try{if(['profile','friends','messages','bookmarks','history','studio','admin','algorithms'].includes(route.page)&&!authUser){routing.pending=route;state.page='account';authMode='signin';authNotice='Sign in to open this page.';render();return;}
   if(route.page==='member'){let id=route.member;if(!id){const row=await result(authClient.from('zopathy_profiles').select('id').eq('username',route.handle).maybeSingle());if(seq!==routing.sequence)return;if(!row?.id){state.page='not-found';render();return;}id=row.id;}await socialAuthor(id);}
   else if(route.page==='group')await openGroup(route.group);
   else if(route.page==='messages'){state.page='messages';community.target=null;if(route.target)await openDM(route.target);else{render();await loadCommunity();}}
