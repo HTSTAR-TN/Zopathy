@@ -1,0 +1,1 @@
+.dm-push-row{align-items:flex-start;gap:20px}.dm-push-row>div{min-width:0}.dm-push-row h3{font-size:15px}.dm-push-row>button{flex-shrink:0;font-size:11px}.settings-row .dm-push-hint{font-size:10px;margin-top:8px}.settings-row .dm-push-error{color:var(--accent);margin-top:10px}@media(max-width:650px){.dm-push-row{flex-wrap:wrap}}

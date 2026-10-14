@@ -1,0 +1,7 @@
+// Push only: no offline HTML cache, authentication tokens, or message bodies.
+self.addEventListener('install',event=>event.waitUntil(self.skipWaiting()));
+self.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));
+const validPushId=value=>typeof value==='string'&&/^[a-f0-9-]{36}$/.test(value);
+async function pushAccount(){const response=await (await caches.open('zopathy-dm-push-v1')).match('/__zopathy_push_owner');return response?await response.text():null}
+self.addEventListener('push',event=>event.waitUntil((async()=>{let data;try{data=event.data?.json()}catch{return}if(!data||!validPushId(data.id)||!validPushId(data.sender)||!validPushId(data.recipient)||data.recipient!==await pushAccount())return;await self.registration.showNotification('Zopathy',{body:'You have a new direct message.',icon:'/icons/orbit-z-phone-v4-192.png',badge:'/icons/orbit-z-v3-32.png',tag:'zopathy-dm-'+data.id,renotify:false,data:{sender:data.sender,recipient:data.recipient}})})()));
+self.addEventListener('notificationclick',event=>{event.notification.close();event.waitUntil((async()=>{const data=event.notification.data;if(!validPushId(data?.sender)||!validPushId(data?.recipient)||data.recipient!==await pushAccount())return;const url=new URL('/messages/'+data.sender,self.location.origin).href;const windows=await self.clients.matchAll({type:'window',includeUncontrolled:true});const client=windows.find(c=>new URL(c.url).origin===self.location.origin);if(client){await client.navigate(url);await client.focus()}else await self.clients.openWindow(url)})())});

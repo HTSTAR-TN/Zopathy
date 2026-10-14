@@ -21,7 +21,7 @@ function openAccount(mode='signin',message=''){authMode=mode;authNotice=message;
 function requireAccount(){if(authUser)return true;if(!authReady&&authConfigured()&&authTransportSecure()){toast('Your account is reconnecting. Please wait or try again.');return false}openAccount('signin','Sign in or create an account to continue.');return false}
 function setAuthMessage(message,error=false){authNotice=message;const el=$('#auth-message');if(el){el.textContent=message;el.classList.toggle('auth-warning',error)}}
 async function applyAccountUser(user){
- const previousId=authUser?.id;const generation=++authGeneration;authUser=user||null;if(previousId!==authUser?.id)algorithmAccountChanged();accountUsername=authUser?'z_'+authUser.id.replaceAll('-','').slice(0,8):'you';
+ const previousId=authUser?.id;const generation=++authGeneration;authUser=user||null;pushAccountChanged(previousId,authUser?.id);if(previousId!==authUser?.id)algorithmAccountChanged();accountUsername=authUser?'z_'+authUser.id.replaceAll('-','').slice(0,8):'you';
  if(previousId!==authUser?.id){draft={title:'',text:'',blocks:[]};closeDialog(true);}
  resetSocial();prefs={saveHistory:true,siteTheme:'red',browseDestination:'home',...read('preferences',{})};state.focusPost=null;state.rootPostId=null;state.rootIndex=0;state.path=[];state.trail=false;state.why=false;
  profile=authUser?normalizeProfile({...profileDefaults,name:authUser.user_metadata?.display_name||'Explorer',bio:'',status:''}):normalizeProfile(profileDefaults);
@@ -83,7 +83,7 @@ async function submitAuthForm(form){
 async function handleAuthAction(action){
  if(action==='retry'){await restoreAccountSession();return}
  if(action==='signout'){
-  if(!authClient)return;const {error}=await authClient.auth.signOut();if(error){toast('Sign out failed. Please try again.');return}
+  if(!authClient)return;await disableDMPush(true);const {error}=await authClient.auth.signOut();if(error){toast('Sign out failed. Please try again.');return}
   await applyAccountUser(null);state.page='home';draft={title:'',text:'',blocks:[]};render();toast('Signed out.');
  }
  if(action==='resend'&&authUser&&authClient){const {error}=await authClient.auth.resend({type:'signup',email:authUser.email,options:{emailRedirectTo:location.origin+'/'}});toast(error?friendlyAuthError(error):'Verification email requested. Check your inbox.')}
