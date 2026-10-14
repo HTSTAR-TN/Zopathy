@@ -73,7 +73,7 @@ function exploreStageHeight(entry,layer,post=current()){
 }
 function exploreLayout(){
  if(state.page!=='explore')return;
- exploreApplyRail();const entry=$('[data-explore-viewer]');if(!entry)return;
+ exploreApplyRail();const entry=$('[data-explore-viewer]');if(!entry||entry.querySelector('.post-stage.is-transitioning'))return;
  const layer=entry.querySelector('.viewer-layer:not([aria-hidden="true"])')||entry.querySelector('.viewer-layer');if(!layer)return;
  const height=exploreStageHeight(entry,layer),shell=entry.querySelector('.post-viewer');
  shell?.style.setProperty?.('--explore-content-height',height+'px');

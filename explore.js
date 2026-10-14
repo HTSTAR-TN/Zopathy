@@ -43,15 +43,18 @@ async function exploreAdvance(step){
   try{social.limit+=50;await loadSocial();if(state.page!=='explore'||revision!==browsing.revision)return;list=roots();index=list.indexOf(rootId())}finally{immersive.advancing=false}
  }
  const next=list[index+step];if(!next)return;
+ immersive.advancing=true;const revision=browsing.revision;
+ try{const block=cleanBlocks(getPost(next)?.blocks).find(b=>b.kind==='image'&&b.url);if(block&&typeof Image!=='undefined'){const image=new Image();image.decoding='async';image.src=block.url;if(image.decode)await Promise.race([image.decode().catch(()=>{}),new Promise(resolve=>setTimeout(resolve,180))]);}if(state.page!=='explore'||revision!==browsing.revision)return;
  const previous=rootId(),entry=$('[data-explore-viewer]');finishViewerMotion(previous);remember();browseInvalidate();
  state.rootPostId=next;state.rootIndex=index+step;state.path=[];state.trail=false;state.why=false;
  state.transition=step>0?'vertical-next':'vertical-back';
  if(entry){entry.dataset.root=next;renderAnchoredFeed()}else render();
+ }finally{setTimeout(()=>{immersive.advancing=false},260)}
 }
 function exploreHasSelection(){return typeof window.getSelection==='function'&&!window.getSelection().isCollapsed}
 function exploreInputProtected(target){return !!target?.closest?.('button,a,input,textarea,select,summary,audio,video,[contenteditable],[data-gallery],[role=button],[role=slider],[role=switch],[data-no-navigation]')}
 function exploreInnerScroll(target){const body=target?.closest?.('.viewer-layer');return !!body&&body.scrollHeight>body.clientHeight+2}
-function exploreNavigateGesture(axis,delta){if(axis==='x'){delta>0?goDeeper():back()}else exploreAdvance(delta>0?1:-1)}
+function exploreNavigateGesture(axis,delta){if(axis==='x'&&window.ZOPATHY_CONFIG.relatedSwipeEnabled===false)return;if(axis==='x'){delta>0?goDeeper():back()}else exploreAdvance(delta>0?1:-1)}
 function bindExploreGestures(){
  const area=$('[data-explore-viewer]');if(!area||area.dataset.exploreBound)return;area.dataset.exploreBound='true';let start=null;
  area.addEventListener('touchstart',event=>{
@@ -63,7 +66,7 @@ function bindExploreGestures(){
   const touch=event.touches[0],dx=touch.clientX-start.x,dy=touch.clientY-start.y;
   if(!start.axis&&Math.max(Math.abs(dx),Math.abs(dy))>12){
    if(Math.abs(dx)>Math.abs(dy)*1.2)start.axis='x';else if(Math.abs(dy)>Math.abs(dx)*1.2)start.axis='y';
-   if(start.axis==='y'&&exploreInnerScroll(start.target)){start=null;return}
+   if((start.axis==='x'&&window.ZOPATHY_CONFIG.relatedSwipeEnabled===false)||(start.axis==='y'&&exploreInnerScroll(start.target))){start=null;return}
   }
   if(start.axis&&event.cancelable)event.preventDefault();
  },{passive:false});
@@ -76,9 +79,11 @@ function bindExploreGestures(){
  },{passive:true});
  area.addEventListener('touchcancel',()=>{start=null},{passive:true});exploreMeasureBody();explorePreload();
 }
+function exploreWheelProtected(target){return !!target?.closest?.('button,a,input,textarea,select,summary,[contenteditable],[role=button],[role=slider],[role=switch]')}
+function exploreCanScroll(target,delta){for(let el=target;el;el=el.parentElement){if(!el.matches?.('.slideshow-page,.viewer-layer'))continue;if(el.scrollHeight>el.clientHeight+2&&(delta>0?el.scrollTop+el.clientHeight<el.scrollHeight-2:el.scrollTop>2))return true}return false}
 document.addEventListener('wheel',event=>{
- if(state.page!=='explore'||$('#dialog').open||!event.target.closest?.('[data-explore-viewer]')||exploreInputProtected(event.target)||exploreHasSelection()||event.ctrlKey)return;
- const axis=Math.abs(event.deltaX)>Math.abs(event.deltaY)*1.2?'x':'y';if(axis==='y'&&exploreInnerScroll(event.target))return;
+ if(state.page!=='explore'||$('#dialog').open||!event.target.closest?.('[data-explore-viewer]')||exploreWheelProtected(event.target)||exploreHasSelection()||event.ctrlKey)return;
+ const axis=Math.abs(event.deltaX)>Math.abs(event.deltaY)*1.2?'x':'y';if(axis==='x'&&window.ZOPATHY_CONFIG.relatedSwipeEnabled===false)return;if(axis==='y'&&exploreCanScroll(event.target,event.deltaY))return;
  const now=Date.now(),factor=event.deltaMode===1?16:event.deltaMode===2?window.innerHeight:1;
  if(now-immersive.wheelTime>160){immersive.wheelConsumed=false;immersive.wheelTotal=0;immersive.wheelAxis=axis}
  immersive.wheelTime=now;if(event.cancelable)event.preventDefault();
