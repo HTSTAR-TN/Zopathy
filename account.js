@@ -7,7 +7,7 @@ function authTransportSecure(){return location.protocol==='https:'||['localhost'
 function accountSidebar(){
  const container=$('#account-controls');if(!container)return;
  if(!authReady&&authConfigured()&&authTransportSecure()){container.innerHTML=`<div class="account-restoring" role="status">${authNotice?'Your account could not reconnect. <button class="secondary-btn" data-auth-action="retry">Try again</button>':'Restoring your account…'}</div>`;return}
- container.innerHTML=authUser?`<button class="account-user" data-page="profile">${profileAvatar(profile)}<span><strong style="color:${profileNameColor(profile)}">${esc(profile.name)}</strong><small>@${esc(accountHandle())}</small></span></button><button class="account-signout" data-auth-action="signout">Sign out</button>`:`<div class="guest-account"><button class="primary" data-auth-mode="signup">Create account</button><button class="secondary-btn" data-auth-mode="signin">Sign in</button></div>`;
+ container.innerHTML=authUser?`<button class="account-user" data-page="profile">${profileAvatar(profile)}<span><strong style="color:${profileNameColor(profile)}">${esc(profile.name)}</strong>${officialBadges(ownBadgeRow())}<small>@${esc(accountHandle())}</small></span></button><button class="account-signout" data-auth-action="signout">Sign out</button>`:`<div class="guest-account"><button class="primary" data-auth-mode="signup">Create account</button><button class="secondary-btn" data-auth-mode="signin">Sign in</button></div>`;
 }
 function renderAccount(){
  if(authUser&&authMode!=='update-password')return header('Account')+`<div class="page-content"><div class="account-card"><h2>${esc(profile.name)}</h2><p class="account-description">${esc(authUser.email||'')}</p><span class="account-verification ${authUser.email_confirmed_at?'verified':''}">${authUser.email_confirmed_at?'Email verified':'Verify your email to finish setting up your account.'}</span>${!authUser.email_confirmed_at?'<button class="secondary-btn" data-auth-action="resend">Resend verification email</button>':''}<div class="account-card-actions"><button class="primary" data-page="profile">Your profile ${icon('user')}</button><button class="secondary-btn" data-auth-action="signout">Sign out</button></div></div></div>`;
@@ -26,7 +26,7 @@ async function applyAccountUser(user){
  resetSocial();prefs={saveHistory:true,siteTheme:'red',browseDestination:'home',...read('preferences',{})};state.focusPost=null;state.rootPostId=null;state.rootIndex=0;state.path=[];state.trail=false;state.why=false;
  profile=authUser?normalizeProfile({...profileDefaults,name:authUser.user_metadata?.display_name||'Explorer',bio:'',status:''}):normalizeProfile(profileDefaults);
  if(authUser&&authClient){
-  const {data,error}=await authClient.from('zopathy_profiles').select('id,username,display_name,bio,status,appearance').eq('id',authUser.id).maybeSingle();
+  const {data,error}=await authClient.from('zopathy_profiles').select('id,username,display_name,bio,status,appearance,admin_badge,tester_badge').eq('id',authUser.id).maybeSingle();
   if(generation!==authGeneration)return;
   if(data){accountUsername=data.username;profile=normalizeProfile({...data.appearance,name:data.display_name,bio:data.bio,status:data.status});}
   else if(error){toast('Your account is signed in, but its profile could not load. Please try again.');}
@@ -41,7 +41,7 @@ async function persistAccountProfile(candidate,username=accountUsername){
  if(error?.code==='23505')throw Error('That handle is already taken. Try another one.');
  if(error||!data)throw Error('Your profile could not be saved. Please try again.');
  if(authUser?.id!==owner)throw Error('Your account changed. Sign in again before saving.');
- accountUsername=username;const row=social.profiles.get(owner);if(row)social.profiles.set(owner,{...row,username,display_name:name,bio,status,appearance});for(const p of customPosts)if(p.user===owner){p.author={...row,username,display_name:name,bio,status,appearance};p.handle=username;p.name=name;}
+ accountUsername=username;const row=social.profiles.get(owner);if(row)social.profiles.set(owner,{...row,username,display_name:name,bio,status,appearance});for(const p of customPosts)if(p.user===owner){p.author={...p.author,...row,username,display_name:name,bio,status,appearance};p.handle=username;p.name=name;}
 }
 function friendlyAuthError(error){
  const code=error?.code||'';
