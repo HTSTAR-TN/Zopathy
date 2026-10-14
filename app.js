@@ -125,6 +125,7 @@ if(d.blockDelete!==undefined){draft.blocks.splice(Number(d.blockDelete),1);rende
 const action=d.action;if(!action)return;
 if(['like','bookmark','repost'].includes(action)){socialToggle(action,d.id);return}
 if(['publish-draft','edit-profile'].includes(action)&&!requireAccount())return;
+if(action==='sidebar-more')browseMoreMenu();
 if(action==='browse-menu')browseMenu();
 if(action==='comments')showComments(d.id);
 if(action==='directions')directionDialog();
