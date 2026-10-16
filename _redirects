@@ -1,12 +1,12 @@
-/spaces /index.html 200
-/spaces/* /index.html 200
+/spaces / 200
+/spaces/* / 200
 /algorithms / 200
 /home /index.html 200
 /explore /index.html 200
 /explore/* /index.html 200
 /search /index.html 200
-/groups /index.html 200
-/groups/* /index.html 200
+/groups / 200
+/groups/* / 200
 /friends /index.html 200
 /messages / 200
 /messages/* / 200

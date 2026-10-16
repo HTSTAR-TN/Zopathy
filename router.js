@@ -40,7 +40,7 @@ async function routeApply(route,saved=null){const seq=++routing.sequence;closeDi
   if(route.page==='member'){let id=route.member;if(!id){const row=await result(authClient.from('zopathy_profiles').select('id').eq('username',route.handle).maybeSingle());if(seq!==routing.sequence)return;if(!row?.id){state.page='not-found';render();return;}id=row.id;}await socialAuthor(id);}
   else if(route.page==='group')await openGroup(route.group,route.spaceMode||'home');
   else if(route.page==='messages'){state.page='messages';community.target=null;if(route.target)await openDM(route.target);else{render();await loadCommunity();}}
-  else if(route.page==='space-create'){await spaceBackend();spaceMode('create');}
+  else if(route.page==='space-create'){await spaceBackend();await spaceMode('create');}
   else if(route.page==='groups'){state.page='groups';render();await loadGroupDirectory();}
   else if(route.page==='friends'){state.page='friends';render();await loadCommunity();}
   else if(route.page==='discover'){state.page='discover';state.search=String(route.query||'').slice(0,100);if(state.search)await socialSearch(state.search);else render();}
