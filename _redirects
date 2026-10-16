@@ -1,3 +1,5 @@
+/spaces /index.html 200
+/spaces/* /index.html 200
 /algorithms / 200
 /home /index.html 200
 /explore /index.html 200
@@ -20,3 +22,4 @@
 /u/* / 200
 /@* /u/:splat 302
 /%40* /u/:splat 302
+
