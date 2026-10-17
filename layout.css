@@ -121,8 +121,8 @@ html[data-context-kind=people] .rightbar #related-panel,html[data-context-kind=p
  html[data-nav=expanded] #nav-collapse{align-self:flex-end}
 }
 @media(min-width:1280px){
- html:not([data-workspace=true]):not([data-destination=messages])[data-context=shown]:not([data-layout=focused]) .app-shell{grid-template-columns:var(--app-nav) minmax(0,1fr) var(--app-context)}
- html:not([data-workspace=true]):not([data-destination=messages])[data-context=shown]:not([data-layout=focused]) .app-shell>.rightbar{display:block}
+ html[data-shell-context=true] .app-shell{grid-template-columns:var(--app-nav) minmax(0,1fr) var(--app-context)}
+ html[data-shell-context=true] .app-shell>.rightbar{display:block}
 }
 @media(min-width:1800px){
  :root{--app-pad:24px;--app-context:350px}
@@ -151,6 +151,11 @@ html[data-profile-workspace=true] dialog.profile-studio-dialog:not(.profile-crop
  html[data-context-kind=none][data-immersive=true] .app-shell{grid-template-columns:minmax(0,1fr)}
 }
 @media(min-width:1100px){html[data-nav=expanded] .sidebar .logo .brand-lockup{display:inline-flex}html[data-nav=expanded] .sidebar .logo::before{display:none}}
+@media(min-width:701px) and (max-width:1279px){
+ .alg-panels{display:flex;flex-direction:column;gap:24px}
+ .alg-panels>aside,.alg-panels>section{display:block!important;position:static;max-width:900px;width:100%;max-height:none;margin:0 auto}
+ .alg-mobile-tabs{display:none}
+}
 @media(min-width:1800px){
  html[data-destination=home]:not([data-layout=focused])[data-context=shown] .app-shell{grid-template-columns:var(--app-nav) minmax(650px,800px) minmax(320px,1fr)}
  html[data-destination=home][data-activity=true]:not([data-layout=focused])[data-context=shown] .app-shell{grid-template-columns:var(--app-nav) minmax(240px,.6fr) minmax(650px,800px) minmax(320px,1fr)}
@@ -158,4 +163,9 @@ html[data-profile-workspace=true] dialog.profile-studio-dialog:not(.profile-crop
  html[data-destination=home] .rightbar{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));align-content:start;align-items:start;gap:20px}
  html[data-destination=home] .rightbar>.search,html[data-destination=home] .rightbar>footer{grid-column:1/-1}
  html[data-destination=home][data-layout=focused] .rightbar,html[data-destination=home][data-context=hidden] .rightbar{display:none!important}
+}
+@media(min-width:2560px){
+ html[data-destination=home] .rightbar :is(#related-panel,#people-panel,#trending-panel){display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));align-content:start;gap:12px}
+ html[data-destination=home] .rightbar :is(.section-head,.related-intro,.trending-intro){grid-column:1/-1}
+ html[data-destination=home] .rightbar :is(.person,.related-card){margin:0;padding:14px;border:1px solid var(--line);border-radius:10px}
 }
