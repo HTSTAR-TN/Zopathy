@@ -1,0 +1,145 @@
+/* Sole owner of application columns; individual content and saved canvases stay independent. */
+:root{--app-nav:72px;--app-context:320px;--app-pad:16px;--bottom-nav:calc(66px + env(safe-area-inset-bottom,0px));--app-height:100dvh}
+html{scroll-padding-bottom:calc(var(--bottom-nav) + 16px)}
+body{min-width:0}
+html .app-shell{display:block;width:100%;max-width:none;margin:0;min-height:100svh;gap:0}
+.app-shell>#main{min-width:0;width:100%;padding-bottom:0;border-right:0;overflow-wrap:anywhere}
+.app-shell>.rightbar,#workspace-activity{display:none}
+.layout-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:52px;padding:4px var(--app-pad);border-bottom:1px solid var(--line);background:var(--bg);flex-shrink:0}
+.layout-toolbar>span{font-size:11px;color:var(--muted)}
+.layout-toolbar>div{display:flex;align-items:center;gap:4px}
+.layout-toolbar button{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;font-size:12px;padding:8px}
+.layout-toolbar button:hover{background:var(--panel)}
+.layout-toolbar .layout-desktop-control,#nav-collapse{display:none}
+.workspace-settings{padding:18px 0;border-bottom:1px solid var(--line)}
+.workspace-settings h3{font-size:16px}.workspace-settings p{font-size:13px;color:var(--muted);line-height:1.6}
+.layout-presets{display:grid;gap:10px}.layout-presets button{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:16px;text-align:left;min-height:84px}
+.layout-presets button[aria-pressed=true]{border-color:var(--accent);background:var(--accent-wash)}
+.layout-presets strong,.layout-presets span{display:block}.layout-presets span{font-size:12px;color:var(--muted);line-height:1.6;margin-top:7px}
+.layout-setting-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.layout-space-link{display:block;padding:14px 0;border-bottom:1px solid var(--line);overflow-wrap:anywhere}.layout-space-link strong{font-size:14px}.layout-space-link small{display:block;color:var(--muted);font-size:11px;margin-top:6px}
+.layout-context-dialog{font-size:14px}.layout-context-dialog>.secondary-btn{margin:12px 8px 0 0}
+html[data-context-kind=spaces] .rightbar>:not(#space-context):not(footer),html:not([data-context-kind=spaces]) #space-context{display:none}
+html[data-context-kind=people] .rightbar #related-panel,html[data-context-kind=people] .rightbar #trending-panel{display:none}
+.spaces-directory,.space-layout-editor,.space-page{max-width:none}
+.space-directory-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr))}
+.space-card-copy p{overflow-wrap:anywhere}
+.space-settings{width:100%;max-width:960px}
+.space-layout-controls :is(button,select),.space-actions button,.space-member button{min-height:44px}
+.space-layout-controls button{padding:8px}
+.space-layout-item,.space-component,.alg-panels>*{min-width:0}
+.widget-touch-order{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.widget-touch-order button{border:1px solid var(--line);border-radius:8px;padding:10px;min-height:44px;font-size:12px}
+/* Phones have their own navigation and touch editor, rather than a shrunken desktop. */
+@media(max-width:700px){
+ body{padding-bottom:var(--bottom-nav)}
+ .app-shell>#main>.page-content{padding:16px 12px;width:100%;max-width:100%}
+ .app-shell>.sidebar{position:fixed;inset:auto 0 0;width:100%;height:var(--bottom-nav);padding:0 max(6px,env(safe-area-inset-right)) env(safe-area-inset-bottom,0px) max(6px,env(safe-area-inset-left));display:block;z-index:20;background:var(--bg);border-right:0;border-top:1px solid var(--line)}
+ .app-shell>.sidebar #main-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));height:66px;gap:2px;overflow:visible}
+ .app-shell>.sidebar :is(.logo,.create-btn,.account-controls,#nav-collapse){display:none}
+ .app-shell>.sidebar #main-nav .mobile-primary{min-height:54px}
+ .main-header{gap:8px;padding-left:12px;padding-right:12px;flex-wrap:wrap}
+ .main-header-tools{margin-left:auto}.mobile-header-control{min-width:44px;min-height:44px}
+ .main-header h1{font-size:21px}.main-header .tabs{gap:20px}
+ .page-content :is(input,textarea,select),.studio-panel :is(input:not([type=color]):not([type=range]):not([type=checkbox]),textarea,select){font-size:16px}
+ .page-content :is(button,a.secondary-btn,summary,select),.profile-studio-dialog :is(button,summary,select){min-height:44px}
+ .settings-row,.groups-heading,.group-directory-tabs,.space-appearance{flex-wrap:wrap}
+ .browse-preference select{max-width:100%;flex-shrink:1}
+ .space-actions{padding:0 14px 14px}.space-component-grid{display:flex;flex-direction:column}
+ .space-identity>div{min-width:0}.space-identity p{overflow-wrap:anywhere}
+ .space-layout-editor>.space-actions{position:sticky;top:0;background:var(--bg);z-index:3;padding:8px 0}
+ .algorithm-studio{padding:20px 12px calc(20px + env(safe-area-inset-bottom))}
+ .alg-panels{display:flex;flex-direction:column;gap:24px}.alg-panels>aside,.alg-panels>section{display:block!important;position:static;width:100%;max-width:none;max-height:none}.alg-mobile-tabs{display:none}
+ #alg-save-controls{position:static}.alg-header{flex-wrap:wrap}.alg-types{gap:8px}.alg-types label{min-height:44px}
+ html[data-destination=messages] #main{height:var(--app-height);padding-bottom:var(--bottom-nav)}
+ html[data-destination=messages] body{padding-bottom:0}
+ html[data-destination=explore] #main{height:var(--app-height);padding-bottom:var(--bottom-nav)}
+ html[data-destination=explore] .app-shell{height:var(--app-height);min-height:0}
+ html[data-destination=explore] body{padding-bottom:0}
+ .explore-rail-toggle{display:none!important}
+ .post-actions button{min-width:44px;min-height:44px}
+ [data-destination=home] .timeline .post-actions{gap:4px!important;flex-wrap:wrap}
+ .post-actions .post-explore-link{margin-left:auto}
+ .profile-studio-dialog .studio-header{padding-top:max(12px,env(safe-area-inset-top));padding-bottom:8px;gap:6px}
+ .profile-studio-dialog .studio-workspace{display:flex;flex-direction:column}
+ .profile-studio-dialog .studio-canvas{flex:0 0 34%;min-height:130px;padding:8px}
+ .profile-studio-dialog .studio-inspector{flex:1;min-height:0;padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+ .profile-studio-dialog .studio-header .studio-history{gap:2px}
+ .profile-studio-dialog .studio-history button{padding:4px;font-size:10px}
+ .profile-studio-dialog .studio-header .secondary-btn,.profile-studio-dialog .studio-header .primary{padding:8px;font-size:11px}
+ .profile-studio-dialog .studio-canvas .designer-preview-viewport.desktop .personal-profile-frame{min-width:0}
+ .profile-studio-dialog .studio-categories{position:static;flex-wrap:wrap;display:flex;margin:0;padding:0 0 12px}
+ .profile-studio-dialog .studio-categories button{flex:1 0 40%;font-size:12px}
+ .studio-inspector .widget-library{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .studio-inspector .widget-library button{min-width:0}
+ #toast{bottom:calc(var(--bottom-nav) + 12px)}
+}
+/* One set of desktop columns for every destination. Tablet starts with an icon rail. */
+@media(min-width:701px){
+ :root{--app-pad:20px}
+ html body{padding:0 16px}
+ html .app-shell{display:grid;grid-template-columns:var(--app-nav) minmax(0,1fr);align-items:start}
+ html .app-shell>.sidebar{display:flex;align-items:stretch;width:var(--app-nav);height:var(--app-height);position:sticky;top:0;padding:20px 10px 12px;min-width:0;border-right:1px solid var(--line)}
+ html .sidebar .logo{width:100%;height:56px;min-height:56px;margin:0 0 12px;padding:8px 0 16px;justify-content:center;overflow:hidden}
+ html .sidebar .brand-lockup{transform:scale(.65);transform-origin:center;flex-shrink:0}
+ html .sidebar #main-nav{display:flex;flex:1;flex-direction:column;gap:4px;min-height:0;overflow:auto;width:100%;height:auto}
+ html .sidebar #main-nav .nav-item{display:flex;justify-content:center;min-height:46px;height:auto;width:100%;padding:10px;margin:0;gap:12px;font-size:14px;flex-shrink:0}
+ html .sidebar #main-nav .nav-item span{display:none}
+ html .sidebar .create-btn{display:flex;justify-content:center;min-height:44px;width:100%;font-size:0;gap:0;padding:10px;margin:12px 0}
+ html .sidebar .create-btn svg{width:22px;height:22px}
+ html .sidebar .account-controls{display:block;width:100%;padding-top:8px}
+ html .sidebar .sidebar-account-card{padding:4px;background:var(--panel);border:1px solid var(--line)}
+ html .sidebar .account-user{justify-content:center;padding:4px 0}
+ html .sidebar .account-user .avatar{width:36px;height:36px;flex:0 0 36px}
+ html .sidebar .account-user .account-identity,html .sidebar .account-user>div:last-child:not(.avatar),html .sidebar .account-signout{display:none}
+ html .sidebar .guest-account{font-size:11px;padding:8px 2px;min-height:44px}
+ #nav-collapse{display:grid;place-items:center;min-height:44px;width:44px;align-self:center;border:1px solid var(--line);border-radius:8px;margin-bottom:10px}
+ .layout-toolbar .layout-desktop-control{display:inline-flex}
+ html .app-shell>.rightbar{position:sticky;top:0;height:var(--app-height);padding:20px;min-width:0;overflow-y:auto;border-left:1px solid var(--line)}
+ .layout-presets{grid-template-columns:repeat(3,minmax(0,1fr))}
+ html #main>.page-content{padding:24px var(--app-pad);max-width:none}
+ html[data-destination=home] #main>:not(.layout-toolbar):not(.main-header){width:100%;max-width:800px;margin-left:auto;margin-right:auto}
+ html[data-destination=home] #main>.home-compose,html[data-destination=home] #main>.feed-profile-preview{width:calc(100% - 40px);max-width:760px}
+ html[data-destination=settings] #main>.page-content,html[data-destination=account] #main>.page-content{max-width:1000px;margin:auto}
+ html[data-destination=profile] #main>.page-content,html[data-destination=member] #main>.page-content{max-width:none}
+ html[data-destination=messages] #main,html[data-destination=explore] #main{height:var(--app-height);padding-bottom:0}
+ .alg-panels{grid-template-columns:minmax(180px,.65fr) minmax(300px,1.1fr) minmax(270px,1fr)}
+ .explore-rail-toggle{display:none!important}
+ html[data-immersive=true] .app-shell{grid-template-columns:minmax(0,1fr)}
+ html[data-immersive=true] .app-shell>.sidebar{display:none}
+}
+@media(min-width:1100px){
+ html[data-nav=expanded]{--app-nav:248px}
+ html[data-nav=expanded] .sidebar .logo{justify-content:flex-start}
+ html[data-nav=expanded] .sidebar .brand-lockup{transform:none}
+ html[data-nav=expanded] .sidebar #main-nav .nav-item{justify-content:flex-start}
+ html[data-nav=expanded] .sidebar #main-nav .nav-item span{display:block}
+ html[data-nav=expanded] .sidebar .create-btn{font-size:14px;gap:10px;justify-content:space-between}
+ html[data-nav=expanded] .sidebar .account-user{justify-content:flex-start;gap:10px;padding:8px 4px}
+ html[data-nav=expanded] .sidebar .account-user .account-identity,html[data-nav=expanded] .sidebar .account-user>div:last-child:not(.avatar){display:block}
+ html[data-nav=expanded] .sidebar .account-signout{display:flex}
+ html[data-nav=expanded] #nav-collapse{align-self:flex-end}
+}
+@media(min-width:1280px){
+ html:not([data-workspace=true]):not([data-destination=messages])[data-context=shown]:not([data-layout=focused]) .app-shell{grid-template-columns:var(--app-nav) minmax(0,1fr) var(--app-context)}
+ html:not([data-workspace=true]):not([data-destination=messages])[data-context=shown]:not([data-layout=focused]) .app-shell>.rightbar{display:block}
+}
+@media(min-width:1800px){
+ :root{--app-pad:24px;--app-context:350px}
+ html body{padding:0 24px}
+ html[data-layout=expanded] .space-directory-grid{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+ html[data-destination=home][data-activity=true][data-layout=expanded][data-context=shown] .app-shell{grid-template-columns:var(--app-nav) minmax(250px,.65fr) minmax(650px,1.5fr) minmax(320px,.85fr)}
+ html[data-destination=home][data-activity=true][data-layout=expanded][data-context=shown] #workspace-activity{display:block;grid-column:2;grid-row:1;position:sticky;top:0;padding:24px;max-height:100dvh;overflow:auto}
+ #workspace-activity h2{font-size:16px}
+}
+@media(prefers-reduced-motion:reduce){.app-shell,.sidebar,.layout-toolbar{scroll-behavior:auto;transition:none}}
+/* The existing Profile Studio draft, iframe preview and confirmation remain intact. */
+html[data-profile-workspace=true] body{overflow:hidden}
+html[data-profile-workspace=true] dialog.profile-studio-dialog:not(.profile-crop-mode){position:fixed;inset:0 0 0 auto;z-index:30;width:100%!important;margin:0;height:100dvh;max-height:100dvh}
+@media(min-width:701px){
+ html[data-profile-workspace=true]:not([data-profile-immersive=true]) dialog.profile-studio-dialog:not(.profile-crop-mode){width:calc(100% - var(--app-nav) - 32px)!important;right:16px}
+ html[data-profile-immersive=true] .sidebar{visibility:hidden}
+ .profile-studio-dialog .studio-header{flex-wrap:wrap}
+}
+@media(min-width:1800px){html[data-profile-workspace=true]:not([data-profile-immersive=true]) dialog.profile-studio-dialog:not(.profile-crop-mode){width:calc(100% - var(--app-nav) - 48px)!important;right:24px}}
+@media(max-width:700px){.studio-immersive{display:none}.explore-entry .post-actions{flex-wrap:wrap;gap:2px!important}.profile-studio-dialog .studio-header{padding-right:44px}}

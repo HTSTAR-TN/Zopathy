@@ -1,5 +1,4 @@
-/* Explore has its own stage. Home's sidebar and feed rules are unchanged. */
-[data-destination="explore"] .app-shell{max-width:none;grid-template-columns:80px minmax(0,1fr)}
+
 [data-destination="explore"] .sidebar{padding:24px 12px 16px;align-items:center;background:var(--bg)}
 [data-destination="explore"] .sidebar .logo{margin:0 0 24px;justify-content:center;width:44px}
 [data-destination="explore"] .sidebar .logo .zopathy-wordmark{display:none}
@@ -14,7 +13,6 @@
 [data-destination="explore"] .account-user>div:last-child:not(.avatar),[data-destination="explore"] .account-signout{display:none}
 [data-destination="explore"] .account-user .avatar{width:34px;height:34px}
 [data-destination="explore"] .guest-account{font-size:0}
-[data-destination="explore"][data-explore-rail="expanded"] .app-shell{grid-template-columns:230px minmax(0,1fr)}
 [data-destination="explore"][data-explore-rail="expanded"] .sidebar{padding:24px 20px 16px;align-items:stretch}
 [data-destination="explore"][data-explore-rail="expanded"] .sidebar .logo{width:auto;justify-content:flex-start}
 [data-destination="explore"][data-explore-rail="expanded"] .sidebar .logo .zopathy-wordmark{display:block}
@@ -87,7 +85,7 @@
 
 /* Mobile keeps the existing five destinations and safe-area inset. */
 @media(max-width:700px),(max-height:500px) and (max-width:950px){
- [data-destination="explore"] .app-shell,[data-destination="explore"][data-explore-rail="expanded"] .app-shell{display:block;grid-template-columns:none;height:auto}
+ [data-destination="explore"] .app-shell,[data-destination="explore"][data-explore-rail="expanded"] .app-shell{height:auto}
  [data-destination="explore"] #main{height:calc(100dvh - 66px - env(safe-area-inset-bottom,0px))}
  [data-destination="explore"] .sidebar,[data-destination="explore"][data-explore-rail="expanded"] .sidebar{position:fixed;left:0;right:0;bottom:0;top:auto;border-top:1px solid var(--line);border-right:0;z-index:20;padding:0 6px env(safe-area-inset-bottom,0px);height:calc(66px + env(safe-area-inset-bottom,0px));width:100%;display:block;align-items:initial}
  [data-destination="explore"] .sidebar .logo,[data-destination="explore"] .sidebar .create-btn,[data-destination="explore"] .sidebar .account-controls{display:none}

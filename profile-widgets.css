@@ -1,5 +1,4 @@
 [data-destination="profile"] .rightbar,[data-destination="member"] .rightbar{display:none}
-[data-destination="profile"] .app-shell,[data-destination="member"] .app-shell{grid-template-columns:230px minmax(0,1fr);max-width:1440px}
 dialog.profile-studio-dialog:not(.profile-crop-mode){width:100vw!important;max-width:none!important;height:100dvh;max-height:100dvh;margin:0;border-radius:0;border:0}
 .profile-studio-dialog .studio-workspace{grid-template-columns:320px minmax(0,1fr)}
 .widget-library{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:18px 0}
@@ -12,9 +11,9 @@ dialog.profile-studio-dialog:not(.profile-crop-mode){width:100vw!important;max-w
 .widget-inspector textarea{min-height:110px}
 .widget-inspector button{font-size:11px}
 .widget-inspector input[type=number]{width:100%}
-@media(min-width:701px) and (max-width:1200px){[data-destination="profile"] .app-shell,[data-destination="member"] .app-shell{grid-template-columns:200px minmax(0,1fr)}}
+@media(min-width:701px) and (max-width:1200px){}
 @media(max-width:850px){.profile-studio-dialog .studio-workspace{grid-template-columns:260px minmax(0,1fr)}}
-@media(max-width:700px){[data-destination="profile"] .app-shell,[data-destination="member"] .app-shell{display:block;max-width:none}}
+@media(max-width:700px){}
 @media(max-width:600px){.profile-studio-dialog .studio-workspace{display:flex}.profile-studio-dialog .studio-canvas{flex-basis:48%}.widget-library{grid-template-columns:repeat(2,1fr)}}
 
 .studio-exit-dialog{width:min(420px,calc(100vw - 32px));padding:26px;background:var(--panel);border:1px solid var(--line);border-radius:16px}.studio-exit-dialog p{font-size:13px;color:var(--muted);line-height:1.7;margin:16px 0 24px}.studio-exit-dialog>div{display:flex;justify-content:flex-end;gap:10px}.studio-exit-dialog button{font-size:12px}.studio-exit-dialog::backdrop{background:#0008}
