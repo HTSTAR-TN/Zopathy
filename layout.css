@@ -143,3 +143,19 @@ html[data-profile-workspace=true] dialog.profile-studio-dialog:not(.profile-crop
 }
 @media(min-width:1800px){html[data-profile-workspace=true]:not([data-profile-immersive=true]) dialog.profile-studio-dialog:not(.profile-crop-mode){width:calc(100% - var(--app-nav) - 48px)!important;right:24px}}
 @media(max-width:700px){.studio-immersive{display:none}.explore-entry .post-actions{flex-wrap:wrap;gap:2px!important}.profile-studio-dialog .studio-header{padding-right:44px}}
+@media(min-width:701px){
+ html .sidebar .logo .brand-lockup{display:none}
+ html .sidebar .logo::before{content:'';width:36px;height:36px;background:url('/icons/orbit-z-v3-32.png') center/contain no-repeat;flex-shrink:0}
+ html[data-context-kind=none] .app-shell{grid-template-columns:var(--app-nav) minmax(0,1fr)}
+ html[data-context-kind=none] .app-shell>.rightbar{display:none}
+ html[data-context-kind=none][data-immersive=true] .app-shell{grid-template-columns:minmax(0,1fr)}
+}
+@media(min-width:1100px){html[data-nav=expanded] .sidebar .logo .brand-lockup{display:inline-flex}html[data-nav=expanded] .sidebar .logo::before{display:none}}
+@media(min-width:1800px){
+ html[data-destination=home]:not([data-layout=focused])[data-context=shown] .app-shell{grid-template-columns:var(--app-nav) minmax(650px,800px) minmax(320px,1fr)}
+ html[data-destination=home][data-activity=true]:not([data-layout=focused])[data-context=shown] .app-shell{grid-template-columns:var(--app-nav) minmax(240px,.6fr) minmax(650px,800px) minmax(320px,1fr)}
+ html[data-destination=home][data-activity=true]:not([data-layout=focused])[data-context=shown] #workspace-activity{display:block;grid-column:2;grid-row:1;position:sticky;top:0;padding:24px;max-height:100dvh;overflow:auto}
+ html[data-destination=home] .rightbar{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));align-content:start;align-items:start;gap:20px}
+ html[data-destination=home] .rightbar>.search,html[data-destination=home] .rightbar>footer{grid-column:1/-1}
+ html[data-destination=home][data-layout=focused] .rightbar,html[data-destination=home][data-context=hidden] .rightbar{display:none!important}
+}
