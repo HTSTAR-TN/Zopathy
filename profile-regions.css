@@ -12,3 +12,11 @@ html[data-context-kind=profile-widgets] .rightbar>:not(.search):not(#profile-hot
 @media(prefers-reduced-motion:reduce){.pw-order-item{transition:none}}
 
 .profile-header+.pw-regions{margin-top:var(--gap,16px)}
+
+/* The trusted editor previews the same two regions without exposing user CSS globally. */
+body[data-pw-preview=desktop] .profile-layout{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:var(--gap,16px);align-items:start}
+body[data-pw-preview=desktop] .profile-header{grid-column:1;grid-row:1}
+body[data-pw-preview=desktop] .pw-regions{display:contents}
+body[data-pw-preview=desktop] .pw-inline-hotdogs{display:grid;grid-column:2;grid-row:1 / span 2}
+body[data-pw-preview=desktop] .pw-hamburgers,body[data-pw-preview=desktop] .profile-widget-grid{grid-column:1;grid-row:2}
+.studio-canvas .designer-preview-viewport.desktop .personal-profile-frame.pw-desktop-preview{min-width:900px}
