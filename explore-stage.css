@@ -1,27 +1,4 @@
-
-[data-destination="explore"] .sidebar{padding:24px 12px 16px;align-items:center;background:var(--bg)}
-[data-destination="explore"] .sidebar .logo{margin:0 0 24px;justify-content:center;width:44px}
-[data-destination="explore"] .sidebar .logo .zopathy-wordmark{display:none}
-[data-destination="explore"] .sidebar #main-nav{width:100%;height:auto;flex:1;display:flex;flex-direction:column;gap:5px}
-[data-destination="explore"] .sidebar .nav-item{width:100%;height:44px;flex-shrink:0;justify-content:center;padding:10px;margin:0;border-radius:12px}
-[data-destination="explore"] .sidebar .nav-item span{display:none}
-[data-destination="explore"] .sidebar .nav-item:is([data-page="friends"],[data-page="bookmarks"],[data-page="history"],[data-page="studio"]){display:none}
-[data-destination="explore"] .sidebar .create-btn{width:44px;height:44px;padding:10px;margin:12px 0;font-size:0;justify-content:center;gap:0;flex-shrink:0}
-[data-destination="explore"] .sidebar .create-btn svg{width:22px;height:22px}
-[data-destination="explore"] .account-controls{padding:12px 0 0;width:100%}
-[data-destination="explore"] .account-user{justify-content:center}
-[data-destination="explore"] .account-user>div:last-child:not(.avatar),[data-destination="explore"] .account-signout{display:none}
-[data-destination="explore"] .account-user .avatar{width:34px;height:34px}
-[data-destination="explore"] .guest-account{font-size:0}
-[data-destination="explore"][data-explore-rail="expanded"] .sidebar{padding:24px 20px 16px;align-items:stretch}
-[data-destination="explore"][data-explore-rail="expanded"] .sidebar .logo{width:auto;justify-content:flex-start}
-[data-destination="explore"][data-explore-rail="expanded"] .sidebar .logo .zopathy-wordmark{display:block}
-[data-destination="explore"][data-explore-rail="expanded"] .sidebar .nav-item{justify-content:flex-start;gap:12px}
-[data-destination="explore"][data-explore-rail="expanded"] .sidebar .nav-item span{display:block}
-[data-destination="explore"][data-explore-rail="expanded"] .sidebar .nav-item:is([data-page="friends"],[data-page="bookmarks"],[data-page="history"],[data-page="studio"]){display:flex}
-[data-destination="explore"][data-explore-rail="expanded"] .sidebar .create-btn{width:100%;font-size:14px;justify-content:flex-start;gap:12px}
-[data-destination="explore"][data-explore-rail="expanded"] .account-user{justify-content:flex-start}
-[data-destination="explore"][data-explore-rail="expanded"] .account-user>div:last-child:not(.avatar),[data-destination="explore"][data-explore-rail="expanded"] .account-signout{display:block}
+/* Navigation is shared across routes in layout.css. Explore owns only its post stage. */
 .explore-header{border:0;min-height:64px;padding:16px 28px;flex-shrink:0}
 .explore-title{display:flex;align-items:center;gap:14px}.explore-header h1{font-size:18px;font-weight:650;margin:0}
 .explore-rail-toggle{width:32px;height:32px;border:1px solid var(--line);border-radius:8px;color:var(--muted)}

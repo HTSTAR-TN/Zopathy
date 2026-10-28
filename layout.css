@@ -98,8 +98,8 @@ html[data-context-kind=people] .rightbar #related-panel,html[data-context-kind=p
  html .app-shell>.rightbar{position:sticky;top:0;height:var(--app-height);padding:20px;min-width:0;overflow-y:auto;border-left:1px solid var(--line)}
  .layout-presets{grid-template-columns:repeat(3,minmax(0,1fr))}
  html #main>.page-content{padding:24px var(--app-pad);max-width:none}
- html[data-destination=home] #main>:not(.layout-toolbar):not(.main-header){width:100%;max-width:800px;margin-left:auto;margin-right:auto}
- html[data-destination=home] #main>.home-compose,html[data-destination=home] #main>.feed-profile-preview{width:calc(100% - 40px);max-width:760px}
+ html[data-destination=home] #main>:is(.timeline,.feed-bottom,.social-feed-toolbar,.page-content){width:100%;max-width:800px;margin-left:auto;margin-right:auto}
+ html[data-destination=home] #main>.home-compose,html[data-destination=home] #main>.feed-profile-preview{width:calc(100% - 48px);max-width:752px}
  html[data-destination=settings] #main>.page-content,html[data-destination=account] #main>.page-content{max-width:1000px;margin:auto}
  html[data-destination=profile] #main>.page-content,html[data-destination=member] #main>.page-content{max-width:none}
  html[data-destination=messages] #main,html[data-destination=explore] #main{height:var(--app-height);padding-bottom:0}
@@ -161,7 +161,7 @@ html[data-profile-workspace=true] dialog.profile-studio-dialog:not(.profile-crop
  html[data-destination=home][data-activity=true]:not([data-layout=focused])[data-context=shown] .app-shell{grid-template-columns:var(--app-nav) minmax(240px,.6fr) minmax(650px,800px) minmax(320px,1fr)}
  html[data-destination=home][data-activity=true]:not([data-layout=focused])[data-context=shown] #workspace-activity{display:block;grid-column:2;grid-row:1;position:sticky;top:0;padding:24px;max-height:100dvh;overflow:auto}
  html[data-destination=home] .rightbar{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));align-content:start;align-items:start;gap:20px}
- html[data-destination=home] .rightbar>.search,html[data-destination=home] .rightbar>footer{grid-column:1/-1}
+ html[data-destination=home] .rightbar>.search,html[data-destination=home] .rightbar>footer,html[data-destination=home] .rightbar>#trending-panel{grid-column:1/-1}
  html[data-destination=home][data-layout=focused] .rightbar,html[data-destination=home][data-context=hidden] .rightbar{display:none!important}
 }
 @media(min-width:2560px){
