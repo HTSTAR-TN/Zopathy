@@ -1,3 +1,5 @@
+// Listing only: direct Explore routes and implementation remain available.
+function browseExploreListed(){return window.ZOPATHY_CONFIG?.exploreListed!==false}
 // Shared browsing adapter. Existing renderers and Supabase history remain authoritative.
 // State is session-only: this module never writes account data or local storage.
 const browsing={revision:0,destination:'home',renderedPage:null,homePosition:null,explicit:false,initialApplied:false};
@@ -75,6 +77,7 @@ function browseMenu(){
  openDialog('<h2>More on Zopathy</h2><p class="intro">Your conversations, saved posts, and creative tools.</p><nav class="browse-menu" aria-label="All destinations">'+navigation.map(([page,ic,label])=>'<button class="secondary-btn" data-page="'+page+'">'+icon(ic)+'<span>'+esc(label)+'</span></button>').join('')+'</nav>');
 }
 function browsePreferenceSetting(){
+ if(!browseExploreListed())return "";
  const ready=!!authUser&&social.browsePreferenceReady;
  return '<section class="browse-preference settings-row"><div><h3>Start browsing in</h3><p>'+(!authUser?'Sign in to sync this preference.':ready?'Your preferred starting view syncs across devices. Post links and your navigation take priority.':'Account sync needs the prepared browsing-preference database update.')+'</p></div><select id="browse-destination" aria-label="Preferred initial browsing destination" '+(!ready?'disabled':'')+'><option value="home" '+(prefs.browseDestination==='home'?'selected':'')+'>Home</option><option value="explore" '+(prefs.browseDestination==='explore'?'selected':'')+'>Explore</option></select></section>';
 }
@@ -82,7 +85,7 @@ function browseApplyInitialDestination(renderView=true){
  if(browsing.initialApplied)return;browsing.initialApplied=true;if(routing.initial&&!routing.ready)return;
  const url=new URL(location.href);
  if(browsing.explicit||state.page!=='home'||url.searchParams.has('post')||url.searchParams.has('group'))return;
- const view=url.searchParams.get('view'),destination=['home','explore'].includes(view)?view:(prefs.browseDestination==='explore'?'explore':'home');
+ const view=url.searchParams.get('view'),destination=['home','explore'].includes(view)?view:(browseExploreListed()&&prefs.browseDestination==='explore'?'explore':'home');
  browseSetDestination(destination);if(renderView)render();
 }
 function browseApplyExplicitView(){

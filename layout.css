@@ -85,8 +85,9 @@ html[data-context-kind=people] .rightbar #related-panel,html[data-context-kind=p
  html .sidebar #main-nav{display:flex;flex:1;flex-direction:column;gap:4px;min-height:0;overflow:auto;width:100%;height:auto}
  html .sidebar #main-nav .nav-item{display:flex;justify-content:center;min-height:46px;height:auto;width:100%;padding:10px;margin:0;gap:12px;font-size:14px;flex-shrink:0}
  html .sidebar #main-nav .nav-item span{display:none}
- html .sidebar .create-btn{display:flex;justify-content:center;min-height:44px;width:100%;font-size:0;gap:0;padding:10px;margin:12px 0}
- html .sidebar .create-btn svg{width:22px;height:22px}
+ html .sidebar .create-btn{display:flex;justify-content:center;min-height:48px;width:100%;font-size:0;font-weight:650;gap:0;padding:12px;margin:12px 0;border-radius:12px;border:1px solid #ffffff18;box-shadow:0 3px 10px #0002;transition:filter .15s ease,box-shadow .15s ease}
+ html .sidebar .create-btn svg{width:20px;height:20px;stroke-width:2}
+ html .sidebar .create-btn>span{display:none}
  html .sidebar .account-controls{display:block;width:100%;padding-top:8px}
  html .sidebar .sidebar-account-card{padding:4px;background:var(--panel);border:1px solid var(--line)}
  html .sidebar .account-user{justify-content:center;padding:4px 0}
@@ -113,7 +114,8 @@ html[data-context-kind=people] .rightbar #related-panel,html[data-context-kind=p
  html[data-nav=expanded] .sidebar .brand-lockup{transform:none}
  html[data-nav=expanded] .sidebar #main-nav .nav-item{justify-content:flex-start}
  html[data-nav=expanded] .sidebar #main-nav .nav-item span{display:block}
- html[data-nav=expanded] .sidebar .create-btn{font-size:14px;gap:10px;justify-content:space-between}
+ html[data-nav=expanded] .sidebar .create-btn{font-size:14px;gap:10px;justify-content:center}
+ html[data-nav=expanded] .sidebar .create-btn>span{display:inline}
  html[data-nav=expanded] .sidebar .account-user{justify-content:flex-start;gap:10px;padding:8px 4px}
  html[data-nav=expanded] .sidebar .account-user .account-identity,html[data-nav=expanded] .sidebar .account-user>div:last-child:not(.avatar){display:block}
  html[data-nav=expanded] .sidebar .account-signout{display:flex}
@@ -175,3 +177,8 @@ html[data-profile-workspace=true] dialog.profile-studio-dialog:not(.profile-crop
  [data-destination=home] .main-header .feed-refresh{font-size:0;width:44px;min-width:44px;min-height:44px;padding:0}
  [data-destination=home] .main-header .feed-refresh::before{content:'\21bb';font-size:24px;line-height:1}
 }
+
+@media(hover:hover) and (pointer:fine){.sidebar .create-btn:hover{filter:brightness(1.06);box-shadow:0 4px 14px #0003}}
+.sidebar .create-btn:active{filter:brightness(.96)}
+.sidebar .create-btn:focus-visible{outline:2px solid var(--text);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.sidebar .create-btn{transition:none}}
