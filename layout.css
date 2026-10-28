@@ -10,7 +10,7 @@ html .app-shell{display:block;width:100%;max-width:none;margin:0;min-height:100s
 .layout-toolbar>div{display:flex;align-items:center;gap:4px}
 .layout-toolbar button{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;font-size:12px;padding:8px}
 .layout-toolbar button:hover{background:var(--panel)}
-.layout-toolbar .layout-desktop-control,#nav-collapse{display:none}
+.layout-toolbar .layout-desktop-control{display:none}
 .workspace-settings{padding:18px 0;border-bottom:1px solid var(--line)}
 .workspace-settings h3{font-size:16px}.workspace-settings p{font-size:13px;color:var(--muted);line-height:1.6}
 .layout-presets{display:grid;gap:10px}.layout-presets button{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:16px;text-align:left;min-height:84px}
@@ -36,7 +36,7 @@ html[data-context-kind=people] .rightbar #related-panel,html[data-context-kind=p
  .app-shell>#main>.page-content{padding:16px 12px;width:100%;max-width:100%}
  .app-shell>.sidebar{position:fixed;inset:auto 0 0;width:100%;height:var(--bottom-nav);padding:0 max(6px,env(safe-area-inset-right)) env(safe-area-inset-bottom,0px) max(6px,env(safe-area-inset-left));display:block;z-index:20;background:var(--bg);border-right:0;border-top:1px solid var(--line)}
  .app-shell>.sidebar #main-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));height:66px;gap:2px;overflow:visible}
- .app-shell>.sidebar :is(.logo,.create-btn,.account-controls,#nav-collapse){display:none}
+ .app-shell>.sidebar :is(.logo,.create-btn,.account-controls){display:none}
  .app-shell>.sidebar #main-nav .mobile-primary{min-height:54px}
  .main-header{gap:8px;padding-left:12px;padding-right:12px;flex-wrap:wrap}
  .main-header-tools{margin-left:auto}.mobile-header-control{min-width:44px;min-height:44px}
@@ -93,7 +93,6 @@ html[data-context-kind=people] .rightbar #related-panel,html[data-context-kind=p
  html .sidebar .account-user .avatar{width:36px;height:36px;flex:0 0 36px}
  html .sidebar .account-user .account-identity,html .sidebar .account-user>div:last-child:not(.avatar),html .sidebar .account-signout{display:none}
  html .sidebar .guest-account{font-size:11px;padding:8px 2px;min-height:44px}
- #nav-collapse{display:grid;place-items:center;min-height:44px;width:44px;align-self:center;border:1px solid var(--line);border-radius:8px;margin-bottom:10px}
  .layout-toolbar .layout-desktop-control{display:inline-flex}
  html .app-shell>.rightbar{position:sticky;top:0;height:var(--app-height);padding:20px;min-width:0;overflow-y:auto;border-left:1px solid var(--line)}
  .layout-presets{grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -118,7 +117,6 @@ html[data-context-kind=people] .rightbar #related-panel,html[data-context-kind=p
  html[data-nav=expanded] .sidebar .account-user{justify-content:flex-start;gap:10px;padding:8px 4px}
  html[data-nav=expanded] .sidebar .account-user .account-identity,html[data-nav=expanded] .sidebar .account-user>div:last-child:not(.avatar){display:block}
  html[data-nav=expanded] .sidebar .account-signout{display:flex}
- html[data-nav=expanded] #nav-collapse{align-self:flex-end}
 }
 @media(min-width:1280px){
  html[data-shell-context=true] .app-shell{grid-template-columns:var(--app-nav) minmax(0,1fr) var(--app-context)}
