@@ -167,3 +167,11 @@ html[data-profile-workspace=true] dialog.profile-studio-dialog:not(.profile-crop
  html[data-destination=home] .rightbar :is(.section-head,.related-intro,.trending-intro){grid-column:1/-1}
  html[data-destination=home] .rightbar :is(.person,.related-card){margin:0;padding:14px;border:1px solid var(--line);border-radius:10px}
 }
+
+/* Keep feed actions in the header and the banner/composer as one compact stack. */
+[data-destination=home] .main-header .feed-refresh{font-size:12px;min-height:36px;white-space:nowrap;justify-content:center}
+[data-destination=home] .feed-profile-preview+.home-compose{margin-top:12px}
+@media(max-width:700px){
+ [data-destination=home] .main-header .feed-refresh{font-size:0;width:44px;min-width:44px;min-height:44px;padding:0}
+ [data-destination=home] .main-header .feed-refresh::before{content:'\21bb';font-size:24px;line-height:1}
+}
